@@ -1,3 +1,7 @@
+# api_key_file
+
+api_key.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -153,6 +157,7 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+.env
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
