@@ -81,7 +81,7 @@ with app.app_context():
     
 
 # Set your OpenAI API key
-openai.api_key = "API key:   sk-ik5D0tuwmDRbOYH_YDvoMnvBA7iwxRxiOxFdnasr5BT3BlbkFJC8B28R_wv2Xc37l2QYywL6JRe-VSLmHYBBcO185wAA (edited)"
+openai.api_key = "API key:  )"
 
 # API route to create a job application
 @app.route('/create_application', methods=['POST'])
