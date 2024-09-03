@@ -1,14 +1,13 @@
 import openai
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
-from dotenv import load_dotenv
 import os
 
 
 class ChatGPTApp:
     def __init__(self):
         # Load environment variables from .env file
-        load_dotenv()
+        self.api_key = os.getenv('OPENAI_API_KEY')
 
         # Conversation history and the initial system message
         self.system_role = "You are here to help the user to find a job"  # Define system role here
