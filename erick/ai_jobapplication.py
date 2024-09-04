@@ -2,9 +2,10 @@ import openai
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
 import os
+from resume_generator import generate_resume_letter
 
 
-class ChatGPTApp:
+class JobFinderAI:
     def __init__(self):
         # Load environment variables from .env file
         self.api_key = os.getenv('OPENAI_API_KEY')
@@ -12,9 +13,6 @@ class ChatGPTApp:
         # Conversation history and the initial system message
         self.system_role = "You are here to help the user to find a job"  # Define system role here
         self.messages = [{"role": "system", "content": self.system_role}]
-
-        # Load the OpenAI API key from a file
-        self.api_key = os.getenv('OPENAI_API_KEY')
 
         # Set up OpenAI client
         self.setup_openai(self.api_key)
@@ -67,7 +65,7 @@ class ChatGPTApp:
     def setup_gui(self):
         # Initialize the GUI application
         self.root = tk.Tk()
-        self.root.title("ChatGPT Interface")
+        self.root.title("JobFind Interface")
 
         # Create a chat log window
         self.chat_log = ScrolledText(self.root, wrap=tk.WORD, state=tk.DISABLED, bg="white", fg="black", font=("Arial", 12))
@@ -84,6 +82,10 @@ class ChatGPTApp:
         send_button = tk.Button(self.root, text="Send", command=self.send_message, font=("Arial", 12))
         send_button.pack(pady=5)
 
+        # Create a button to generate the resume
+        resume_button = tk.Button(self.root, text="Generate Resume", command=self.display_resume, font=("Arial", 12))
+        resume_button.pack(pady=5)
+
         # Run the main loop
         self.root.mainloop()
 
@@ -97,5 +99,15 @@ class ChatGPTApp:
         # Set up OpenAI client
         self.setup_openai(self.api_key)
 
+    def display_resume(self):
+        # Generate the resume for a specific user (e.g., user_id=1)
+        resume_letter = generate_resume_letter(1) 
+
+        # Display the generated resume in the chat log
+        self.chat_log.config(state=tk.NORMAL)
+        self.chat_log.insert(tk.END, f"RESUME LETTER:\n{resume_letter}\n\n")
+        self.chat_log.config(state=tk.DISABLED)
+
 # Run the application
-app = ChatGPTApp()
+app = JobFinderAI()
+
