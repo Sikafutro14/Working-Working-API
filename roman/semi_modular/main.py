@@ -1,22 +1,11 @@
 import tkinter as tk
 from tkinter import messagebox, filedialog
-import openai
 import psycopg2
-from psycopg2 import sql, extras
+from psycopg2 import extras
 import hashlib
 import os
 import sys
-
-# Function to load the API key from the parent directory
-def load_api_key():
-    try:
-        parent_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-        api_key_path = os.path.join(parent_directory, 'api_key.txt')
-        with open(api_key_path, 'r') as file:
-            return file.read().strip()
-    except Exception as e:
-        messagebox.showerror("API Key Error", f"Failed to load API key: {e}")
-        sys.exit(1)
+from ai_module import generate_application_letter
 
 # Function to hash passwords
 def hash_password(password):
@@ -26,9 +15,9 @@ def hash_password(password):
 def connect_to_db():
     try:
         conn = psycopg2.connect(
-            dbname="job_app_db",         # Replace with your database name
-            user="postgres",             # Replace with your PostgreSQL username
-            password="password",         # Replace with your PostgreSQL password
+            dbname="job_app_db",
+            user="postgres",
+            password="password",
             host="localhost",
             port="5432"
         )
@@ -193,28 +182,7 @@ def add_job_offer(conn, user_id, company, department, offer_url, company_descrip
         conn.rollback()
         messagebox.showerror("Error", f"Failed to add job offer.\nError: {e}")
         return None
-# Function to generate application letter using OpenAI
-def generate_application_letter(messages):
-    try:
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=messages,
-            temperature=1.0,
-            max_tokens=1000,
-        )
-            # Append the user's message to the conversation history
-        messages.append({"role": "user", "content": f"Based on the following skills: {skills}, write a professional application letter for this job offer:\n\n{offer_text}"})
 
-        # Get the response from ChatGPT
-        response = generate_application_letter(messages)
-
-        letter = response.choices[0].text.strip()
-        return letter
-    except Exception as e:
-        messagebox.showerror("OpenAI Error", f"Failed to generate application letter.\nError: {e}")
-        return None
-    
-        
 # Function to save application and generated letter
 def save_application(conn, user_id, offer_id, letter):
     try:
@@ -247,7 +215,7 @@ class JobAppAssistant:
         self.user_id = None
 
         self.root.title("Job Application Assistant")
-        self.root.geometry("500x400")
+        self.root.geometry("600x500")
 
         self.show_login_screen()
 
@@ -291,7 +259,7 @@ class JobAppAssistant:
         self.clear_window()
 
         reg_frame = tk.Frame(self.root)
-        reg_frame.pack(pady=20)
+        reg_frame.pack(pady=50)
 
         tk.Label(reg_frame, text="Register", font=("Arial", 18)).grid(row=0, columnspan=2, pady=10)
 
@@ -308,23 +276,31 @@ class JobAppAssistant:
         password_entry = tk.Entry(reg_frame, show="*")
         password_entry.grid(row=3, column=1, padx=10, pady=5)
 
-        tk.Label(reg_frame, text="First Name:").grid(row=4, column=0, padx=10, pady=5)
-        first_name_entry = tk.Entry(reg_frame)
-        first_name_entry.grid(row=4, column=1, padx=10, pady=5)
+        tk.Label(reg_frame, text="Confirm Password:").grid(row=4, column=0, padx=10, pady=5)
+        confirm_password_entry = tk.Entry(reg_frame, show="*")
+        confirm_password_entry.grid(row=4, column=1, padx=10, pady=5)
 
-        tk.Label(reg_frame, text="Last Name:").grid(row=5, column=0, padx=10, pady=5)
+        tk.Label(reg_frame, text="First Name:").grid(row=5, column=0, padx=10, pady=5)
+        first_name_entry = tk.Entry(reg_frame)
+        first_name_entry.grid(row=5, column=1, padx=10, pady=5)
+
+        tk.Label(reg_frame, text="Last Name:").grid(row=6, column=0, padx=10, pady=5)
         last_name_entry = tk.Entry(reg_frame)
-        last_name_entry.grid(row=5, column=1, padx=10, pady=5)
+        last_name_entry.grid(row=6, column=1, padx=10, pady=5)
 
         def on_register():
             username = username_entry.get().strip()
             email = email_entry.get().strip()
             password = password_entry.get().strip()
+            confirm_password = confirm_password_entry.get().strip()
             first_name = first_name_entry.get().strip()
             last_name = last_name_entry.get().strip()
 
-            if not username or not email or not password or not first_name or not last_name:
-                messagebox.showerror("Error", "Please fill in all fields.")
+            if not username or not email or not password or not confirm_password or not first_name or not last_name:
+                messagebox.showerror("Error", "All fields are required.")
+                return
+            if password != confirm_password:
+                messagebox.showerror("Error", "Passwords do not match.")
                 return
 
             user_id = register_user(self.conn, username, email, password, first_name, last_name)
@@ -332,58 +308,50 @@ class JobAppAssistant:
                 self.user_id = user_id
                 self.show_main_menu()
 
-        tk.Button(reg_frame, text="Register", command=on_register).grid(row=6, columnspan=2, pady=10)
-        self.root.bind('<Return>', lambda event=None: on_register())
+        tk.Button(reg_frame, text="Register", command=on_register).grid(row=7, columnspan=2, pady=10)
 
-        tk.Button(reg_frame, text="Back", command=self.show_login_screen).grid(row=7, columnspan=2, pady=5)
+        tk.Button(reg_frame, text="Back to Login", command=self.show_login_screen).grid(row=8, columnspan=2, pady=10)
 
     def show_main_menu(self):
         self.clear_window()
 
-        menu_frame = tk.Frame(self.root)
-        menu_frame.pack(pady=50)
+        main_frame = tk.Frame(self.root)
+        main_frame.pack(pady=50)
 
-        tk.Label(menu_frame, text="Main Menu", font=("Arial", 18)).grid(row=0, column=0, pady=10)
+        tk.Label(main_frame, text="Main Menu", font=("Arial", 18)).pack(pady=10)
 
-        tk.Button(menu_frame, text="Enter Personal Information", command=self.show_personal_info_screen).grid(row=1, column=0, pady=10)
-        tk.Button(menu_frame, text="Add Job Offer", command=self.show_job_offer_screen).grid(row=2, column=0, pady=10)
-        tk.Button(menu_frame, text="Exit", command=self.root.quit).grid(row=3, column=0, pady=10)
+        tk.Button(main_frame, text="Update Personal Information", command=self.show_personal_info_screen).pack(pady=10)
+        tk.Button(main_frame, text="Add Job Offer", command=self.show_job_offer_screen).pack(pady=10)
+        tk.Button(main_frame, text="Generate Application Letter", command=self.show_application_letter_screen).pack(pady=10)
+        tk.Button(main_frame, text="Logout", command=self.show_login_screen).pack(pady=10)
 
     def show_personal_info_screen(self):
         self.clear_window()
 
-        pi_frame = tk.Frame(self.root)
-        pi_frame.pack(pady=20)
+        info_frame = tk.Frame(self.root)
+        info_frame.pack(pady=50)
 
-        tk.Label(pi_frame, text="Personal Information", font=("Arial", 18)).grid(row=0, column=0, columnspan=2, pady=10)
+        tk.Label(info_frame, text="Update Personal Information", font=("Arial", 18)).grid(row=0, columnspan=2, pady=10)
 
-        tk.Label(pi_frame, text="First Name:").grid(row=1, column=0, padx=10, pady=5)
-        first_name_entry = tk.Entry(pi_frame)
+        tk.Label(info_frame, text="First Name:").grid(row=1, column=0, padx=10, pady=5)
+        first_name_entry = tk.Entry(info_frame)
         first_name_entry.grid(row=1, column=1, padx=10, pady=5)
-        first_name_entry.focus()
 
-        tk.Label(pi_frame, text="Last Name:").grid(row=2, column=0, padx=10, pady=5)
-        last_name_entry = tk.Entry(pi_frame)
+        tk.Label(info_frame, text="Last Name:").grid(row=2, column=0, padx=10, pady=5)
+        last_name_entry = tk.Entry(info_frame)
         last_name_entry.grid(row=2, column=1, padx=10, pady=5)
 
-        tk.Label(pi_frame, text="Email:").grid(row=3, column=0, padx=10, pady=5)
-        email_entry = tk.Entry(pi_frame)
+        tk.Label(info_frame, text="Email:").grid(row=3, column=0, padx=10, pady=5)
+        email_entry = tk.Entry(info_frame)
         email_entry.grid(row=3, column=1, padx=10, pady=5)
 
-        tk.Label(pi_frame, text="CV Path:").grid(row=4, column=0, padx=10, pady=5)
-        cv_entry = tk.Entry(pi_frame)
+        tk.Label(info_frame, text="CV Path:").grid(row=4, column=0, padx=10, pady=5)
+        cv_entry = tk.Entry(info_frame)
         cv_entry.grid(row=4, column=1, padx=10, pady=5)
+        tk.Button(info_frame, text="Browse", command=lambda: self.browse_cv(cv_entry)).grid(row=4, column=2, padx=10, pady=5)
 
-        def select_cv_file():
-            file_path = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf"), ("All Files", "*.*")])
-            if file_path:
-                cv_entry.delete(0, tk.END)
-                cv_entry.insert(0, file_path)
-
-        tk.Button(pi_frame, text="Browse", command=select_cv_file).grid(row=4, column=2, padx=10, pady=5)
-
-        tk.Label(pi_frame, text="Skills (comma-separated):").grid(row=5, column=0, padx=10, pady=5)
-        skills_entry = tk.Entry(pi_frame)
+        tk.Label(info_frame, text="Skills (comma-separated):").grid(row=5, column=0, padx=10, pady=5)
+        skills_entry = tk.Entry(info_frame)
         skills_entry.grid(row=5, column=1, padx=10, pady=5)
 
         def on_save():
@@ -394,28 +362,31 @@ class JobAppAssistant:
             skills = skills_entry.get().strip()
 
             if not first_name or not last_name or not email:
-                messagebox.showerror("Error", "Please fill in all fields.")
+                messagebox.showerror("Error", "Please fill out all required fields.")
                 return
 
             collect_personal_data(self.conn, self.user_id, first_name, last_name, email, cv_path, skills)
 
-        tk.Button(pi_frame, text="Save", command=on_save).grid(row=6, columnspan=2, pady=10)
-        self.root.bind('<Return>', lambda event=None: on_save())
+        tk.Button(info_frame, text="Save", command=on_save).grid(row=6, columnspan=3, pady=10)
+        tk.Button(info_frame, text="Back", command=self.show_main_menu).grid(row=7, columnspan=3, pady=10)
 
-        tk.Button(pi_frame, text="Back", command=self.show_main_menu).grid(row=7, columnspan=2, pady=10)
+    def browse_cv(self, entry):
+        file_path = filedialog.askopenfilename(filetypes=[("PDF files", "*.pdf"), ("All files", "*.*")])
+        if file_path:
+            entry.delete(0, tk.END)
+            entry.insert(0, file_path)
 
     def show_job_offer_screen(self):
         self.clear_window()
 
         offer_frame = tk.Frame(self.root)
-        offer_frame.pack(pady=20)
+        offer_frame.pack(pady=50)
 
-        tk.Label(offer_frame, text="Job Offer", font=("Arial", 18)).grid(row=0, column=0, columnspan=2, pady=10)
+        tk.Label(offer_frame, text="Add Job Offer", font=("Arial", 18)).grid(row=0, columnspan=2, pady=10)
 
         tk.Label(offer_frame, text="Company:").grid(row=1, column=0, padx=10, pady=5)
         company_entry = tk.Entry(offer_frame)
         company_entry.grid(row=1, column=1, padx=10, pady=5)
-        company_entry.focus()
 
         tk.Label(offer_frame, text="Department:").grid(row=2, column=0, padx=10, pady=5)
         department_entry = tk.Entry(offer_frame)
@@ -430,50 +401,59 @@ class JobAppAssistant:
         company_description_entry.grid(row=4, column=1, padx=10, pady=5)
 
         tk.Label(offer_frame, text="Offer Text:").grid(row=5, column=0, padx=10, pady=5)
-        offer_text_entry = tk.Text(offer_frame, height=6, width=40)
+        offer_text_entry = tk.Entry(offer_frame)
         offer_text_entry.grid(row=5, column=1, padx=10, pady=5)
 
-        def on_generate():
+        def on_add_offer():
             company = company_entry.get().strip()
             department = department_entry.get().strip()
             offer_url = offer_url_entry.get().strip()
             company_description = company_description_entry.get().strip()
-            offer_text = offer_text_entry.get("1.0", tk.END).strip()
+            offer_text = offer_text_entry.get().strip()
 
-            if not company or not offer_text:
-                messagebox.showerror("Error", "Please fill in all required fields.")
+            if not company or not department or not offer_url or not company_description or not offer_text:
+                messagebox.showerror("Error", "Please fill out all fields.")
                 return
 
             offer_id = add_job_offer(self.conn, self.user_id, company, department, offer_url, company_description, offer_text)
             if offer_id:
-                with self.conn.cursor() as cur:
-                    cur.execute("SELECT skill FROM skills WHERE user_id = %s", (self.user_id,))
-                    skills = ', '.join([row[0] for row in cur.fetchall()])
-                letter = generate_application_letter(skills)
-                if letter:
-                    save_application(self.conn, self.user_id, offer_id, letter)
+                self.show_main_menu()
 
-        tk.Button(offer_frame, text="Generate Letter", command=on_generate).grid(row=6, columnspan=2, pady=10)
-        self.root.bind('<Return>', lambda event=None: on_generate())
-
+        tk.Button(offer_frame, text="Add Offer", command=on_add_offer).grid(row=6, columnspan=2, pady=10)
         tk.Button(offer_frame, text="Back", command=self.show_main_menu).grid(row=7, columnspan=2, pady=10)
+
+    def show_application_letter_screen(self):
+        self.clear_window()
+
+        letter_frame = tk.Frame(self.root)
+        letter_frame.pack(pady=50)
+
+        tk.Label(letter_frame, text="Generate Application Letter", font=("Arial", 18)).grid(row=0, columnspan=2, pady=10)
+
+        tk.Label(letter_frame, text="Job Offer ID:").grid(row=1, column=0, padx=10, pady=5)
+        offer_id_entry = tk.Entry(letter_frame)
+        offer_id_entry.grid(row=1, column=1, padx=10, pady=5)
+
+        tk.Label(letter_frame, text="Personal Statement:").grid(row=2, column=0, padx=10, pady=5)
+        personal_statement_entry = tk.Entry(letter_frame)
+        personal_statement_entry.grid(row=2, column=1, padx=10, pady=5)
+
+        def on_generate_letter():
+            offer_id = offer_id_entry.get().strip()
+            personal_statement = personal_statement_entry.get().strip()
+
+            if not offer_id or not personal_statement:
+                messagebox.showerror("Error", "Please fill out all fields.")
+                return
+
+            letter = generate_application_letter(self.conn, self.user_id, offer_id, personal_statement)
+            if letter:
+                self.show_main_menu()
+                messagebox.showinfo("Success", "Application letter generated successfully!")
+
+        tk.Button(letter_frame, text="Generate Letter", command=on_generate_letter).grid(row=3, columnspan=2, pady=10)
+        tk.Button(letter_frame, text="Back", command=self.show_main_menu).grid(row=4, columnspan=2, pady=10)
 
     def clear_window(self):
         for widget in self.root.winfo_children():
             widget.destroy()
-
-# Load API key and initialize OpenAI
-api_key = load_api_key()
-openai.api_key = api_key
-
-# Connect to the database
-conn = connect_to_db()
-create_tables(conn)
-
-# Check if users exist and start the application
-root = tk.Tk()
-app = JobAppAssistant(root, conn)
-root.mainloop()
-
-# Close the database connection when the application ends
-conn.close()
