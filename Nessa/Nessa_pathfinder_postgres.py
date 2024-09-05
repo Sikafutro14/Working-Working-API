@@ -8,63 +8,37 @@ import openai
 import tkinter as tk
 from tkinter import messagebox
 import requests
+from faker import Faker
 
-
-
-def create_db():
-    # Connect to the database (creates it if it doesn't exist)
-    conn = psycopg2.connect(
-        dbname = 'pathfinder',
-        user = 'postgres',
-        password = 'password',
-        host = 'localhost',
-        port = '5432'
-        )
-    conn.autocommit = True
-
-    cursor = conn.cursor()
-
-
-    # Create the tables
-    cursor.execute('''
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100),
-    email VARCHAR(100),
-    resume TEXT
-);
-''')
-
-    cursor.execute('''
-CREATE TABLE job_applications (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
-    company VARCHAR(100),
-    position VARCHAR(100),
-    status VARCHAR(50),
-    application_date DATE
-);
-
-''')
-    
     
     
 app = Flask(__name__)
 
-# Configure your database URI
-#app.config[' SQLAlchemy_DATABASE_URI'] = 'postgresql://username:password@localhost/pathfinder'
-#app.config[' SQLAlchemy_TRACK_MODIFICATIONS'] = False
+app = Flask(__name__)
 
-app.config['SQLAlchemy_DATABASE_URI'] = 'postgresql://username:password@localhost/database_name'
+# Replace with your actual database credentials and connection string
+app.config['SQLAlchemyDATABASE_URI'] = 'postgresql://postgres:password@host:port/job_tracker'
 
-db = SQLAlchemy(app)
+# Optional, avoid warnings
+app.config['SQLAlchemy_TRACK_MODIFICATIONS'] = False
 
+# ... rest of your application code
+
+db = SQLAlchemy(app)  # Initialize SQLAlchemy after configuration
 #database models
 class user(db.Model):
     id = db.Column(db.interger, primary_key=True)
     name = db.Column(db.String(100))
     email = db.Column(db.String(100))
     resume = db.Column(db.Text)
+
+def __repr__(self):
+        return f'<User {self.username}>'
+
+@app.route('/')
+def index():
+    return "Hello, Flask with SQLAlchemy!"
+
 
 class JobApplication(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -79,6 +53,25 @@ with app.app_context():
     db.create_all()
     
     
+# Function to generate synthetic data
+def generate_job_application():
+    fake = Faker()
+    return JobApplication(
+        applicant_name=fake.name(),
+        position=random.choice(['Software Engineer', 'Data Scientist', 'Product Manager', 'Designer']),
+        status=random.choice(['Pending', 'Accepted', 'Rejected']),
+        application_date=fake.date_this_year(),
+        contact_email=fake.email()
+    )
+
+# Insert synthetic data into the database
+with app.app_context():
+    for _ in range(100):  # Adjust the number for more or less data
+        application = generate_job_application()
+        db.session.add(application)
+    db.session.commit()
+
+print("Data inserted successfully!")
 
 # Set your OpenAI API key
 openai.api_key = "API key:  )"
