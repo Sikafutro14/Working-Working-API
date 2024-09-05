@@ -23,6 +23,7 @@ class ApplicationTrackerApp(ctk.CTk):
         self.white = "#FFFFFF"
         self.accent_color = "#0056A0"
         self.text_color = "#E6E6E6"
+        self.shade = "#5A7D9A"  # A medium blue-gray shade
 
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
@@ -51,8 +52,7 @@ class ApplicationTrackerApp(ctk.CTk):
         header_label.pack(pady=10)
 
         # Tabview
-        self.tabview = ctk.CTkTabview(self.main_frame, fg_color=self.accent_color, segmented_button_fg_color=self.dark_blue, 
-                                      segmented_button_selected_color=self.white, segmented_button_unselected_color=self.accent_color)
+        self.tabview = ctk.CTkTabview(self.main_frame, fg_color=self.accent_color, segmented_button_fg_color=self.dark_blue,  segmented_button_unselected_color=self.accent_color)
         self.tabview.pack(fill="both", expand=True)
 
         self.offer_management_tab = self.tabview.add("Offer Management")
@@ -84,7 +84,7 @@ class ApplicationTrackerApp(ctk.CTk):
 
         for text, command in buttons:
             btn = ctk.CTkButton(button_frame, text=text, command=command, width=100, height=40, 
-                                font=("Roboto", 12), fg_color=self.accent_color, hover_color=self.white,
+                                font=("Roboto", 12), fg_color=self.accent_color, hover_color=self.shade,
                                 border_width=2, border_color=self.white)  # Added border
             btn.pack(side="left", padx=5)
             CTkToolTip(btn, message=f"{text} offer")
@@ -122,7 +122,7 @@ class ApplicationTrackerApp(ctk.CTk):
         self.prompt_entry.pack(side="left", fill="x", expand=True, padx=(0, 10))
 
         self.ask_button = ctk.CTkButton(input_frame, text="Ask ChatGPT", command=self.gpt_app.ask_chatgpt, 
-                                        width=120, height=40, font=("Roboto", 12), fg_color=self.accent_color, hover_color=self.white,
+                                        width=120, height=40, font=("Roboto", 12), fg_color=self.accent_color, hover_color=self.shade,
                                         border_width=2, border_color=self.white)  # Added border
         self.ask_button.pack(side="right")
         CTkToolTip(self.ask_button, message="Send prompt to ChatGPT")
