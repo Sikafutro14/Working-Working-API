@@ -79,7 +79,7 @@ class ApplicationTrackerOffers:
         self.app.offers_listbox.delete(0, tk.END)
         if offers:
             for offer in offers:
-                offer_str = f"ID: {offer[0]}, Title: {offer[1]}"
+                offer_str = (f"ID: {offer[0]}, Title: {offer[1]}")
                 self.app.offers_listbox.insert(tk.END, offer_str)
         else:
             self.app.offers_listbox.insert(tk.END, "No offers available")

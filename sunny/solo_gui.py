@@ -3,8 +3,8 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, Menu
 from CTkToolTip import CTkToolTip
 import openai
-from sunny_gpt import ApplicationTrackerGPT
-from sunny_offers import ApplicationTrackerOffers
+from sunny_gpt import *
+from sunny_offers import *
 import os
 from dotenv import load_dotenv
 
