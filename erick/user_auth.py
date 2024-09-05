@@ -1,70 +1,63 @@
 import psycopg2
-import hashlib
+import bcrypt
 
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+# Database connection
+def get_db_connection():
+    return psycopg2.connect(
+        dbname="job_app_db", 
+        user="postgres", 
+        password="password", 
+        host="localhost", 
+        port="5432"
+    )
 
-def add_user(conn, username, email, password, first_name, last_name):
+# Register function
+def register(username, email, password):
     try:
-        cur = conn.cursor()
-        password_hash = hash_password(password)
-        cur.execute("""
-            INSERT INTO users (username, email, password_hash, first_name, last_name)
-            VALUES (%s, %s, %s, %s, %s)
-            RETURNING id
-        """, (username, email, password_hash, first_name, last_name))
-        user_id = cur.fetchone()[0]
-        conn.commit()
-        cur.close()
-        return user_id
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            # Check if the username or email already exists
+            cursor.execute("SELECT * FROM users WHERE username = %s OR email = %s", (username, email)) 
+
+            if cursor.fetchone():
+                return "Username or email already exists."
+
+            # Generate a secure salt and hash the password
+            salt = bcrypt.gensalt()
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+
+            # Insert the new user with hashed password
+            cursor.execute(
+                "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
+                (username, email, hashed_password)
+            )
+
+            conn.commit()
+            return "User registered successfully!"
+
+    except psycopg2.OperationalError as e:
+        return f"Database connection error: {str(e)}"
     except Exception as e:
-        print(f"Error registering user: {e}")
-        return None
-    
-def login_user(conn, username, password):
+        return str(e)
+
+def login(username, password):
     try:
-        cur = conn.cursor()
-        password_hash = hash_password(password)
-        cur.execute("""
-            SELECT id FROM users WHERE username = %s AND password_hash = %s
-        """, (username, password_hash))
-        user = cur.fetchone()
-        cur.close()
-        if user:
-            return user[0]
-        else:
-            return None
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, password FROM users WHERE username = %s", (username,))
+            user = cursor.fetchone()
+
+            if not user:
+                return "User not found.", None
+
+            stored_password = user[1]
+            if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
+                return "Login successful!", user[0]
+            else:
+                return "Incorrect password.", None
+
+    except psycopg2.OperationalError as e:
+        return f"Database connection error: {str(e)}", None
     except Exception as e:
-        print(f"Error logging in: {e}")
-        return None
-
-def verify_user(username, password):
-    try:
-        with psycopg2.connect(
-            dbname="job_app_db", 
-            user="postgres", 
-            password="password", 
-            host="localhost", 
-            port="5432"
-        ) as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                    SELECT password FROM users WHERE username = %s
-                """, (username,))
-                
-                user = cur.fetchone()
-
-                if user:
-                    stored_password = user[0]
-                    if password == stored_password:
-                        return True
-                    else:
-                        print("Password does not match.")
-                        return False
-                else:
-                    print("User not found.")
-                    return False
-
-    except Exception as e:
-        print(f"An error occurred during user verification: {e}")
-        return False
+        return str(e), None

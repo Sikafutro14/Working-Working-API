@@ -1,26 +1,21 @@
 import psycopg2
 import openai
+from user_auth import get_db_connection
 
 def fetch_personal_info(user_id):
     try:
-        conn = psycopg2.connect(
-            dbname="job_app_db", 
-            user="postgres", 
-            password="password", 
-            host="localhost", 
-            port="5432"
-        )
+        conn = get_db_connection()
 
         # Open a cursor to perform database operations
         cur = conn.cursor()
 
         # Execute a query
         cur.execute("""
-            SELECT first_name, last_name, email, cv_path, skills 
-            FROM personal_info 
-            WHERE id = %s
+            SELECT u.username, u.email, p.cv_path, p.skills 
+            FROM users u
+            JOIN personal_info p ON u.id = p.user_id
+            WHERE u.id = %s
         """, (user_id,))
-
 
         # Retrieve query results
         personal_info = cur.fetchone()
@@ -42,12 +37,12 @@ def generate_resume_letter(user_id):
         return "User data not found."
 
     # Unpack the data
-    first_name, last_name, email, cv_path, skills = personal_info
+    username, email, cv_path, skills = personal_info
 
     # Create a prompt for the resume letter
     prompt = f"""
     Help me to create a resume letter, 
-    My name is:{first_name}{last_name}.
+    My name is:{username}.
     Contact details: Email - {email}.
     Experience: {cv_path}.
     Skills: {skills}.

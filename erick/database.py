@@ -22,9 +22,7 @@ def create_tables(conn):
             id SERIAL PRIMARY KEY,
             username VARCHAR(50) UNIQUE NOT NULL,
             email VARCHAR(100) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            first_name VARCHAR(50),
-            last_name VARCHAR(50)
+            password VARCHAR(255) NOT NULL
         )
     """)
     cur.execute("""
@@ -33,6 +31,25 @@ def create_tables(conn):
             email VARCHAR(100),
             cv_path VARCHAR(255),
             skills TEXT
+        )
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS user_resume_info (
+            user_id SERIAL PRIMARY KEY,              
+            full_name VARCHAR(255),                  
+            email VARCHAR(255) UNIQUE,               
+            phone_number VARCHAR(20),                
+            location VARCHAR(255),                   
+            
+            objective TEXT,                          
+
+            work_experience JSONB,                   
+            education JSONB,                         
+            skills TEXT[],                           
+            
+            achievements TEXT[],                     
+            volunteer_work TEXT[],                   
+            references_info JSONB                         
         )
     """)
     cur.execute("""
@@ -61,3 +78,8 @@ def create_tables(conn):
 def close_connection(conn):
     conn.close()
 
+if __name__ == "__main__":
+    conn = connect_to_db()
+    if conn:
+        create_tables(conn)
+        close_connection(conn)
