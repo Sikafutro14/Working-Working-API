@@ -3,7 +3,6 @@ import openai
 
 def fetch_personal_info(user_id):
     try:
-        # Connect to your postgres DB
         conn = psycopg2.connect(
             dbname="job_app_db", 
             user="postgres", 
@@ -55,11 +54,16 @@ def generate_resume_letter(user_id):
     """
 
     # Get the response from ChatGPT
-    response = openai.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=1.0,
-        max_tokens=1000,
-    )
-    
-    return response.choices[0].message.content
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=1.0,
+            max_tokens=1000,
+        )
+        
+        return response.choices[0].message.content
+
+    except Exception as e:
+        print(f"An error occurred while generating the resume: {e}")
+        return "Error generating resume letter."
