@@ -1,27 +1,21 @@
 import psycopg2
 import openai
+from user_auth import get_db_connection
 
 def fetch_personal_info(user_id):
     try:
-        # Connect to your postgres DB
-        conn = psycopg2.connect(
-            dbname="job_app_db", 
-            user="postgres", 
-            password="password", 
-            host="localhost", 
-            port="5432"
-        )
+        conn = get_db_connection()
 
         # Open a cursor to perform database operations
         cur = conn.cursor()
 
         # Execute a query
         cur.execute("""
-            SELECT first_name, last_name, email, cv_path, skills 
-            FROM personal_info 
-            WHERE id = %s
+            SELECT p.full_name, p.email, p.phone_number, p.location, p.objective 
+            FROM users u
+            JOIN details p ON u.id = p.user_id
+            WHERE u.id = %s
         """, (user_id,))
-
 
         # Retrieve query results
         personal_info = cur.fetchone()
@@ -43,23 +37,29 @@ def generate_resume_letter(user_id):
         return "User data not found."
 
     # Unpack the data
-    first_name, last_name, email, cv_path, skills = personal_info
+    full_name, email, phone_number, location, objective = personal_info
 
     # Create a prompt for the resume letter
     prompt = f"""
     Help me to create a resume letter, 
-    My name is:{first_name}{last_name}.
+    My name is:{full_name}.
     Contact details: Email - {email}.
-    Experience: {cv_path}.
-    Skills: {skills}.
+    Phone Number: {phone_number}.
+    Location: {location}.
+    Objective: {objective}.
     """
 
     # Get the response from ChatGPT
-    response = openai.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=1.0,
-        max_tokens=1000,
-    )
-    
-    return response.choices[0].message.content
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=1.0,
+            max_tokens=1000,
+        )
+        
+        return response.choices[0].message.content
+
+    except Exception as e:
+        print(f"An error occurred while generating the resume: {e}")
+        return "Error generating resume letter."
