@@ -6,7 +6,7 @@ class ApplicationTrackerGPT:
         self.api_key = app.api_key  # Ensure API key is correctly referenced
         self.client = None
         self.app = app
-
+    
     def initialize_openai_client(self):
         try:
             openai.api_key = self.api_key  # Set the API key for OpenAI
