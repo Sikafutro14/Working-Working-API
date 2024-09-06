@@ -1,19 +1,6 @@
 import psycopg2
 from psycopg2 import sql
-
-def connect_to_db():
-    try:
-        conn = psycopg2.connect(
-            dbname="job_app_db",
-            user="postgres",
-            password="password",
-            host="localhost",
-            port="5432"
-        )
-        return conn
-    except Exception as e:
-        print(f"Error connecting to database: {e}")
-        return None
+from user_auth import get_db_connection
 
 def create_tables(conn):
     cur = conn.cursor()
@@ -26,23 +13,18 @@ def create_tables(conn):
         )
     """)
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS personal_info (
-            user_id INTEGER PRIMARY KEY REFERENCES users(id),
-            email VARCHAR(100),
-            cv_path VARCHAR(255),
-            skills TEXT
-        )
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS user_resume_info (
-            user_id SERIAL PRIMARY KEY,              
+        CREATE TABLE IF NOT EXISTS Details (
+            user_id SERIAL PRIMARY KEY REFERENCES users(id), 
             full_name VARCHAR(255),                  
             email VARCHAR(255) UNIQUE,               
             phone_number VARCHAR(20),                
-            location VARCHAR(255),                   
-            
-            objective TEXT,                          
-
+            location VARCHAR(255), 
+            objective TEXT
+        )
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS Profiles (
+            user_id SERIAL PRIMARY KEY REFERENCES users(id),              
             work_experience JSONB,                   
             education JSONB,                         
             skills TEXT[],                           
@@ -53,7 +35,7 @@ def create_tables(conn):
         )
     """)
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS offers (
+        CREATE TABLE IF NOT EXISTS Offers (
             id SERIAL PRIMARY KEY,
             user_id INTEGER REFERENCES users(id),
             title VARCHAR(100),
@@ -65,7 +47,7 @@ def create_tables(conn):
         )
     """)
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS applications (
+        CREATE TABLE IF NOT EXISTS Applications (
             id SERIAL PRIMARY KEY,
             user_id INTEGER REFERENCES users(id),
             offer_id INTEGER REFERENCES offers(id),
@@ -79,7 +61,7 @@ def close_connection(conn):
     conn.close()
 
 if __name__ == "__main__":
-    conn = connect_to_db()
+    conn = get_db_connection()
     if conn:
         create_tables(conn)
         close_connection(conn)

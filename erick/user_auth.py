@@ -3,13 +3,18 @@ import bcrypt
 
 # Database connection
 def get_db_connection():
-    return psycopg2.connect(
-        dbname="job_app_db", 
-        user="postgres", 
-        password="password", 
-        host="localhost", 
-        port="5432"
-    )
+    try:
+        conn = psycopg2.connect(
+            dbname="job_app_db",
+            user="postgres",
+            password="password",
+            host="localhost",
+            port="5432"
+        )
+        return conn
+    except Exception as e:
+        print(f"Error connecting to database: {e}")
+        return None
 
 # Register function
 def register(username, email, password):

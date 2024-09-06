@@ -11,9 +11,9 @@ def fetch_personal_info(user_id):
 
         # Execute a query
         cur.execute("""
-            SELECT u.username, u.email, p.cv_path, p.skills 
+            SELECT p.full_name, p.email, p.phone_number, p.location, p.objective 
             FROM users u
-            JOIN personal_info p ON u.id = p.user_id
+            JOIN details p ON u.id = p.user_id
             WHERE u.id = %s
         """, (user_id,))
 
@@ -37,15 +37,16 @@ def generate_resume_letter(user_id):
         return "User data not found."
 
     # Unpack the data
-    username, email, cv_path, skills = personal_info
+    full_name, email, phone_number, location, objective = personal_info
 
     # Create a prompt for the resume letter
     prompt = f"""
     Help me to create a resume letter, 
-    My name is:{username}.
+    My name is:{full_name}.
     Contact details: Email - {email}.
-    Experience: {cv_path}.
-    Skills: {skills}.
+    Phone Number: {phone_number}.
+    Location: {location}.
+    Objective: {objective}.
     """
 
     # Get the response from ChatGPT
