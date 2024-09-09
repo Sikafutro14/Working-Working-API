@@ -92,8 +92,8 @@ def open_p_data(user_id):
     p_data_window.title("Personal Data")
 
     # Define the window size
-    window_width = 640
-    window_height = 480
+    window_width = 1024
+    window_height = 768
 
     # Center the window
     center_window(p_data_window, window_width, window_height)

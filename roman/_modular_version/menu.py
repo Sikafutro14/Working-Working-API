@@ -17,8 +17,8 @@ def open_personal_data(user_id):
 
 def open_offers(user_id):
     """Opens the Offers window."""
-    # from offers import open_offers
-    # open_offers(user_id)
+    from offers import open_offers
+    open_offers(user_id)
 
 def logout():
     """Handles user logout."""
@@ -36,8 +36,9 @@ def open_menu(user_id):
     root = tk.Tk()
     root.title("Menu")
 
-    window_width = 640
-    window_height = 480
+    window_width = 1024
+    window_height = 768
+    
     center_window(root, window_width, window_height)
 
     tk.Button(root, text="Personal Data", command=lambda: open_personal_data(user_id)).pack(pady=10)

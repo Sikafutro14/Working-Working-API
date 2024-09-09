@@ -40,8 +40,9 @@ def open_register():
     register_window = tk.Tk()
     register_window.title("Register")
 
-    window_width = 640
-    window_height = 480
+    window_width = 1024
+    window_height = 768
+    
     center_window(register_window, window_width, window_height)
 
     def register_user():

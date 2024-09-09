@@ -124,8 +124,9 @@ def open_login():
     root = tk.Tk()
     root.title("Login")
 
-    window_width = 640
-    window_height = 480
+    window_width = 1024
+    window_height = 768
+    
     center_window(root, window_width, window_height)
 
     tk.Label(root, text="Username").grid(row=0, column=0, padx=10, pady=10)
