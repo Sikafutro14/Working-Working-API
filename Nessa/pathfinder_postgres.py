@@ -24,10 +24,12 @@ app.config['SQLAlchemy_TRACK_MODIFICATIONS'] = False
 
 # ... rest of your application code
 
-db = SQLAlchemy(app)  # Initialize SQLAlchemy after configuration
+db = SQLAlchemy(app)(app)  # Initialize SQLAlchemy after configuration
+SQLAlchemy=self.init_app(app)
+
 #database models
 class user(db.Model):
-    id = db.Column(db.interger, primary_key=True)
+    id = db.Column(db.integer, primary_key=True)
     name = db.Column(db.String(100))
     email = db.Column(db.String(100))
     resume = db.Column(db.Text)
