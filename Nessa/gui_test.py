@@ -140,62 +140,23 @@ def login_user():
                 cur.close()
                 conn.close()
 
-
-    filename = filedialog.askopenfilename(
-    title="sunny_gui.py",
-    filetypes=[("All files", "*.*")]
-)
-                
-    if filename:
-                with open(filename, 'r') as file:
-                    file_contents = file.read()
-                    # Process the file contents here
-                
-    
-class MyApplication(ctk.CTk):
-    def __init__(self):
-        super().__init__()
-
-        # ... (rest of your application setup)
-
-        # Button to open the file dialog
-        self.open_file_button = ctk.CTkButton(self, text="Open File", command=self.open_file)
-        self.open_file_button.pack(pady=20)
-
-    def open_file(self):
-        filename = filedialog.askopenfilename()
-        if filename:
-            self.process_file(filename)
-
-    def process_file(self, filename):
-        # Do something with the file here
-        with open(filename, 'r') as file:
-            file_contents = file.read()
-            print(file_contents)
-
-# Run the application
-app = MyApplication()
-app.mainloop()
-
     # Creating the app  window
-        
-login_window = ctk.CTkToplevel(app)
-login_window.title("ApplicationTrackerApp")
-login_window.geometry("600x300")
-login_window.configure(bg="#1d314d")
+    login_window = ctk.CTkToplevel(app)
+    login_window.title("Application Tracker")
+    login_window.geometry("600x300")
+    login_window.configure(bg="#1d314d")
 
-tk.CTkLabel(login_window, text="Username", text_color="white").pack(pady=10)
-username_entry = ctk.CTkEntry(login_window)
-username_entry.pack(pady=5)
+   # ctk.CTkLabel(login_window, text="Username", text_color="white").pack(pady=10)
+   # username_entry = ctk.CTkEntry(login_window)
+   # username_entry.pack(pady=5)
 
-ctk.CTkLabel(login_window, text="Password", text_color="white").pack(pady=10)
-password_entry = ctk.CTkEntry(login_window, show="*")
-password_entry.pack(pady=5)
-
-ctk.CTkButton(login_window, text="Login", command=authenticate, fg_color="#6b5717").pack(pady=20)
+    #ctk.CTkLabel(login_window, text="Password", text_color="white").pack(pady=10)
+    #password_entry = ctk.CTkEntry(login_window, show="*")
+    #
+    #ctk.CTkButton(login_window, text="Login", command=authenticate, fg_color="#6b5717").pack(pady=20)
 
 
-def login_user(self):
+    def login_user(self):
         # Implement your login logic here, check username and password against a database or other mechanism
         # If login is successful, call open_job_tracker()
 
@@ -210,7 +171,7 @@ def login_user(self):
             pass
 
  # Open the Application Tracker in a new window
-def open_job_tracker(self):
+    def open_job_tracker(self):
         job_tracker_window.geometry("1200x800")
         job_tracker_window = tk.Toplevel(self)
         job_tracker_window.title("Job Tracker")
@@ -220,7 +181,7 @@ def open_job_tracker(self):
         app = ApplicationTrackerApp(job_tracker_window)
         app.pack(fill="both", expand=True)
 
-def register_user(self):
+    def register_user(self):
         # Registration logic goes here
         pass
 

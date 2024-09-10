@@ -1,212 +1,160 @@
-import random
-import datetime
-import os
-import psycopg2
-from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-import openai    
+import customtkinter as ctk
 import tkinter as tk
-from tkinter import messagebox
-import requests
+from tkinter import messagebox, ttk
 from faker import Faker
 
-    
-    
-app = Flask(__name__)
+# Initialize Faker for fake data generation
+fake = Faker()
 
-app = Flask(__name__)
+# Function to generate fake companies with job offers
+def generate_fake_companies():
+    companies = []
+    for _ in range(10):
+        company_name = fake.company()
+        departments = [fake.job() for _ in range(3)]
+        offers = [{"department": dept, "url": fake.url()} for dept in departments]
+        companies.append({"company_name": company_name, "offers": offers})
+    return companies
 
-# Replace with your actual database credentials and connection string
-app.config['SQLAlchemyDATABASE_URI'] = 'postgresql://postgres:password@host:port/job_tracker'
+fake_companies = generate_fake_companies()
 
-# Optional, avoid warnings
-app.config['SQLAlchemy_TRACK_MODIFICATIONS'] = False
+# Initialize Main App Window
+app = ctk.CTk()
+app.title("Home Page")
+app.geometry("800x600")
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
 
-# ... rest of your application code
+# Set Color Scheme
+bg_color = "#a8b6e6"
+fg_color = "#3053c7"
+app.configure(bg=bg_color)
 
-db = SQLAlchemy(app)(app)  # Initialize SQLAlchemy after configuration
-SQLAlchemy=self.init_app(app)
+# Create a Header Frame
+header_frame = ctk.CTkFrame(app, fg_color=bg_color)
+header_frame.pack(fill="x", pady=10)
 
-#database models
-class user(db.Model):
-    id = db.Column(db.integer, primary_key=True)
-    name = db.Column(db.String(100))
-    email = db.Column(db.String(100))
-    resume = db.Column(db.Text)
+# Create a content frame for dynamic content
+content_frame = ctk.CTkFrame(app, fg_color="#01071a", bg_color=bg_color)
+content_frame.pack(fill="both", expand=True, pady=20)
 
-def __repr__(self):
-        return f'<User {self.username}>'
+# Function to clear the content_frame
+def clear_content_frame():
+    for widget in content_frame.winfo_children():
+        widget.destroy()
 
-@app.route('/')
-def index():
-    return "Hello, Flask with SQLAlchemy!"
+# Function to display user info
+def show_user_info():
+    clear_content_frame()  # Clear previous content
+    # Dummy User Info
+    user_info = {
+        "Username": "john_doe",
+        "Resume": "resume_link.pdf",
+        "CV": "cv_link.pdf"
+    }
+    for i, (key, value) in enumerate(user_info.items()):
+        ctk.CTkLabel(content_frame, text=f"{key}: {value}", fg_color=fg_color).pack(pady=10)
 
+# Function to create a resume by calling an API
+def create_resume():
+    clear_content_frame()  # Clear previous content
 
-class JobApplication(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    company = db.Column(db.String(100))
-    position = db.Column(db.String(100))
-    status = db.Column(db.String(50))
-    application_date = db.Column(db.Date)
+    ctk.CTkLabel(content_frame, text="Enter Keywords for Resume:", fg_color=fg_color).pack(pady=10)
+    keywords_entry = ctk.CTkEntry(content_frame)
+    keywords_entry.pack(pady=10)
 
-# Initialize database
-with app.app_context():
-    db.create_all()
-    
-    
-# Function to generate synthetic data
-def generate_job_application():
-    fake = Faker()
-    return JobApplication(
-        applicant_name=fake.name(),
-        position=random.choice(['Software Engineer', 'Data Scientist', 'Product Manager', 'Designer']),
-        status=random.choice(['Pending', 'Accepted', 'Rejected']),
-        application_date=fake.date_this_year(),
-        contact_email=fake.email()
-    )
-
-# Insert synthetic data into the database
-with app.app_context():
-    for _ in range(100):  # Adjust the number for more or less data
-        application = generate_job_application()
-        db.session.add(application)
-    db.session.commit()
-
-print("Data inserted successfully!")
-
-# Set your OpenAI API key
-openai.api_key = "API key:  )"
-
-# API route to create a job application
-@app.route('/create_application', methods=['POST'])
-def create_application():
-    data = request.json
-    new_application = JobApplication(
-        user_id=data['user_id'],
-        company=data['company'],
-        position=data['position'],
-        status=data['status'],
-        application_date=data['application_date']
-    )
-    db.session.add(new_application)
-    db.session.commit()
-    return jsonify({'message': 'Application created successfully'})
-
-
-# API route to use OpenAI for resume enhancement
-@app.route('/enhance_resume', methods=['POST'])
-def enhance_resume():
-    data = request.json
-    prompt = f"Enhance the following resume: {data['resume']}"
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
-        max_tokens=150
-    )
-    enhanced_resume = response.choices[0].text.strip()
-    return jsonify({'enhanced_resume': enhanced_resume})
-
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
-class PathFinderApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Path Finder - Job Application Tracker")
-
-        # Entry widgets
-        self.name_entry = tk.Entry(root, width=30)
-        self.name_entry.grid(row=0, column=1, padx=20)
-        self.email_entry = tk.Entry(root, width=30)
-        self.email_entry.grid(row=1, column=1, padx=20)
-        self.resume_entry = tk.Text(root, width=40, height=10)
-        self.resume_entry.grid(row=2, column=1, padx=20, pady=10)
-
-        # Labels
-        tk.Label(root, text="Name:").grid(row=0, column=0, pady=5)
-        tk.Label(root, text="Email:").grid(row=1, column=0, pady=5)
-        tk.Label(root, text="Resume:").grid(row=2, column=0, pady=5)
-
-        # Buttons
-        tk.Button(root, text="Enhance Resume", command=self.enhance_resume).grid(row=3, column=1, pady=5)
-        tk.Button(root, text="Submit Application", command=self.submit_application).grid(row=4, column=1, pady=5)
-
-    def enhance_resume(self):
-        resume_text = self.resume_entry.get("1.0", tk.END)
-        response = requests.post('http://127.0.0.1:5000/enhance_resume', json={'resume': resume_text})
-        if response.status_code == 200:
-            enhanced_resume = response.json()['enhanced_resume']
-            self.resume_entry.delete("1.0", tk.END)
-            self.resume_entry.insert(tk.END, enhanced_resume)
+    def generate_resume():
+        keywords = keywords_entry.get()
+        if keywords:
+            # Simulating API Call to Generate Resume with Keywords
+            resume = f"Generated resume with the following keywords: {keywords}"
+            messagebox.showinfo("Resume Generated", resume)
         else:
-            messagebox.showerror("Error", "Failed to enhance resume.")
+            messagebox.showwarning("Input Required", "Please enter some keywords.")
+    
+    ctk.CTkButton(content_frame, text="Generate Resume", command=generate_resume, fg_color=fg_color).pack(pady=10)
 
-    def submit_application(self):
-        name = self.name_entry.get()
-        email = self.email_entry.get()
-        resume = self.resume_entry.get("1.0", tk.END)
-        
-        # Normally you'd save these details in the database
-        # For now, let's just print them as a placeholder
-        print(f"Name: {name}, Email: {email}, Resume: {resume}")
+# Function to communicate with ChatGPT
+def chat_with_gpt():
+    clear_content_frame()  # Clear previous content
 
-# Running the app
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = PathFinderApp(root)
-    root.mainloop()
-  
-    import tkinter as tk
-from tkinter import messagebox
-import requests
+    ctk.CTkLabel(content_frame, text="Ask ChatGPT anything:", fg_color=fg_color).pack(pady=10)
 
-class PathFinderApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Path Finder - Job Application Tracker")
+    question_entry = ctk.CTkEntry(content_frame, width=400)
+    question_entry.pack(pady=10)
 
-        # Entry widgets
-        self.name_entry = tk.Entry(root, width=30)
-        self.name_entry.grid(row=0, column=1, padx=20)
-        self.email_entry = tk.Entry(root, width=30)
-        self.email_entry.grid(row=1, column=1, padx=20)
-        self.resume_entry = tk.Text(root, width=40, height=10)
-        self.resume_entry.grid(row=2, column=1, padx=20, pady=10)
-
-        # Labels
-        tk.Label(root, text="Name:").grid(row=0, column=0, pady=5)
-        tk.Label(root, text="Email:").grid(row=1, column=0, pady=5)
-        tk.Label(root, text="Resume:").grid(row=2, column=0, pady=5)
-
-        # Buttons
-        tk.Button(root, text="Enhance Resume", command=self.enhance_resume).grid(row=3, column=1, pady=5)
-        tk.Button(root, text="Submit Application", command=self.submit_application).grid(row=4, column=1, pady=5)
-
-    def enhance_resume(self):
-        resume_text = self.resume_entry.get("1.0", tk.END)
-        response = requests.post('http://127.0.0.1:5000/enhance_resume', json={'resume': resume_text})
-        if response.status_code == 200:
-            enhanced_resume = response.json()['enhanced_resume']
-            self.resume_entry.delete("1.0", tk.END)
-            self.resume_entry.insert(tk.END, enhanced_resume)
+    def ask_chatgpt():
+        question = question_entry.get()
+        if question:
+            # Simulating API call to ChatGPT
+            response = f"ChatGPT response for '{question}'"
+            messagebox.showinfo("ChatGPT Response", response)
         else:
-            messagebox.showerror("Error", "Failed to enhance resume.")
+            messagebox.showwarning("Input Required", "Please enter a question.")
 
-    def submit_application(self):
-        name = self.name_entry.get()
-        email = self.email_entry.get()
-        resume = self.resume_entry.get("1.0", tk.END)
-        
-        # Normally you'd save these details in the database
-        # For now, let's just print them as a placeholder
-        print(f"Name: {name}, Email: {email}, Resume: {resume}")
+    ctk.CTkButton(content_frame, text="Ask", command=ask_chatgpt, fg_color=fg_color).pack(pady=10)
 
-# Running the app
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = PathFinderApp(root)
-    root.mainloop()
+# Function to view job offers
+def view_job_offers():
+    clear_content_frame()  # Clear previous content
+
+    tree_frame = ctk.CTkFrame(content_frame)
+    tree_frame.pack(pady=20)
+
+    columns = ("Company", "Department", "Job URL")
+    tree_view = ttk.Treeview(tree_frame, columns=columns, show="headings", height=10)
+    
+    for col in columns:
+        tree_view.heading(col, text=col)
+        tree_view.column(col, anchor="center")
+
+    # Insert fake job data into the treeview
+    for company in fake_companies:
+        for offer in company['offers']:
+            tree_view.insert('', tk.END, values=(company["company_name"], offer["department"], offer["url"]))
+
+    tree_view.pack()
+
+# Function to update applied companies
+def update_companies():
+    clear_content_frame()  # Clear previous content
+
+    ctk.CTkLabel(content_frame, text="Enter company name to update application status:", fg_color=fg_color).pack(pady=10)
+    company_name_entry = ctk.CTkEntry(content_frame)
+    company_name_entry.pack(pady=10)
+
+    def update_status():
+        company_name = company_name_entry.get()
+        if company_name:
+            messagebox.showinfo("Updated", f"Updated application status for {company_name}")
+        else:
+            messagebox.showwarning("Input Required", "Please enter a company name.")
+
+    ctk.CTkButton(content_frame, text="Update", command=update_status, fg_color=self.dark_blue).pack(pady=10)
+
+# Function to delete old records
+def delete_records():
+    clear_content_frame()  # Clear previous content
+
+    ctk.CTkLabel(content_frame, text="Enter company name to delete record:", fg_color=fg_color).pack(pady=10)
+    company_name_entry = ctk.CTkEntry(content_frame)
+    company_name_entry.pack(pady=10)
+
+    def delete_record():
+        company_name = company_name_entry.get()
+        if company_name:
+            messagebox.showinfo("Deleted", f"Deleted application for {company_name}")
+        else:
+            messagebox.showwarning("Input Required", "Please enter a company name.")
+
+    ctk.CTkButton(content_frame, text="Delete", command=delete_record, fg_color=fg_color).pack(pady=10)
+
+# Adding Buttons to Header Frame (Aligned Left to Right)
+ctk.CTkButton(header_frame, text="Personal Info", command=show_user_info, fg_color=fg_color).pack(side="left", padx=10)
+ctk.CTkButton(header_frame, text="Create Resume", command=create_resume, fg_color=fg_color).pack(side="left", padx=10)
+ctk.CTkButton(header_frame, text="Ask ChatGPT", command=chat_with_gpt, fg_color=fg_color).pack(side="left", padx=10)
+ctk.CTkButton(header_frame, text="View Job Offers", command=view_job_offers, fg_color=fg_color).pack(side="left", padx=10)
+ctk.CTkButton(header_frame, text="Update Applied Companies", command=update_companies, fg_color=fg_color).pack(side="left", padx=10)
+ctk.CTkButton(header_frame, text="Delete Records", command=delete_records, fg_color=fg_color).pack(side="left", padx=10)
+
+app.mainloop()

@@ -170,7 +170,8 @@ class ApplicationTrackerApp(ctk.CTk):
         if self.db_app:
             self.db_app.update_offer()
         else:
-            messagebox.showerror("Error", "Database connection not initialized")
+            messagebox.showerror("Error",
+                                 "Database connection not initialized")
 
     def delete_offer(self):
         if self.db_app:
