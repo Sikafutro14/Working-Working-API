@@ -47,24 +47,44 @@ def open_offers_window(user_id):
     import offers  # Assuming offers.py has the function to display the offers list
     offers.open_offers(user_id)
 
-def generate_letter(user_id, position, company, about_company, offer):
+def generate_letter(name, p_info, position, comp_name, comp_desc, offer, user_id, offer_id):
     """Calls the generate_application_letter function and stores the letter in the database."""
     try:
-        letter = generate_application_letter(user_id, position, company, about_company, offer)
+        # Generate the letter
+        letter = generate_application_letter(
+            name,
+            p_info,
+            position,
+            comp_name,
+            comp_desc,
+            offer
+        )
 
         # Insert or update the letter in the applications table
         conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST)
         cur = conn.cursor()
 
-        cur.execute("""
-            UPDATE applications
-            SET resume = %s
-            WHERE user_id = %s AND position = %s AND company = %s
-        """, (letter, user_id, position, company))
+        # Check if the record already exists
+        cur.execute("SELECT id FROM applications WHERE user_id = %s AND offer_id = %s", (user_id, offer_id))
+        existing_record = cur.fetchone()
+
+        if existing_record:
+            # Update existing record
+            cur.execute("""
+                UPDATE applications
+                SET resume = %s
+                WHERE user_id = %s AND offer_id = %s
+            """, (letter, user_id, offer_id))
+        else:
+            # Insert new record
+            cur.execute("""
+                INSERT INTO applications (user_id, offer_id, resume)
+                VALUES (%s, %s, %s)
+            """, (user_id, offer_id, letter))
 
         conn.commit()
-
         messagebox.showinfo("Success", "Letter generated and saved successfully.")
+
         cur.close()
         conn.close()
 
@@ -72,6 +92,7 @@ def generate_letter(user_id, position, company, about_company, offer):
         messagebox.showerror("Database Error", f"An error occurred while generating the letter: {e}")
     except Exception as e:
         messagebox.showerror("Error", f"An unexpected error occurred: {e}")
+
 
 def open_offer(offer_id, user_id):
     """Opens the detailed offer view for a specific offer."""
@@ -130,10 +151,10 @@ def open_offer(offer_id, user_id):
     # Status using dropdown
     tk.Label(offer_window, text="Status").grid(row=6, column=0, padx=10, pady=5, sticky="w")
     status_var = tk.StringVar(offer_window)
-    status_options = {1: "Open", 2: "Applied", 3: "Rejected", 4: "Accepted"}
+    status_options = {0: "None", 1: "Open", 2: "Applied", 3: "Rejected", 4: "Accepted"}
     status_menu = ttk.Combobox(offer_window, textvariable=status_var, values=list(status_options.values()))
     status_menu.grid(row=6, column=1, padx=10, pady=5)
-    status_menu.set(status_options[offer_data[6]])
+    status_menu.set(status_options.get(offer_data[6], "None"))
 
     # Buttons
     button_frame = tk.Frame(offer_window)
@@ -156,7 +177,16 @@ def open_offer(offer_id, user_id):
     back_button = tk.Button(button_frame, text="Back", command=lambda: (offer_window.destroy(), open_offers_window(user_id)))
     back_button.pack(side="left", padx=10)
 
-    generate_button = tk.Button(button_frame, text="Generate Letter", command=lambda: generate_letter(user_id, position_entry.get(), company_entry.get(), about_company_text.get("1.0", tk.END).strip(), offer_text.get("1.0", tk.END).strip()))
+    generate_button = tk.Button(button_frame, text="Generate Letter", command=lambda: generate_letter(
+        "Name Placeholder",  # Replace with actual value if available
+        "Personal Info Placeholder",  # Replace with actual value if available
+        position_entry.get(),
+        company_entry.get(),
+        about_company_text.get("1.0", tk.END).strip(),
+        offer_text.get("1.0", tk.END).strip(),
+        user_id,
+        offer_id
+    ))
     generate_button.pack(side="left", padx=10)
 
     offer_window.mainloop()

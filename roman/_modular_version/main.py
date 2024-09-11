@@ -62,7 +62,8 @@ def create_db_and_tables():
             CREATE TABLE IF NOT EXISTS applications (
                 id SERIAL PRIMARY KEY,
                 resume TEXT,
-                user_id INTEGER REFERENCES users(id)
+                user_id INTEGER REFERENCES users(id),
+                offer_id INTEGER REFERENCES offers(id)
             );
         """)
 
@@ -126,7 +127,7 @@ def open_login():
 
     window_width = 1024
     window_height = 768
-    
+
     center_window(root, window_width, window_height)
 
     tk.Label(root, text="Username").grid(row=0, column=0, padx=10, pady=10)
