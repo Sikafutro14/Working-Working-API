@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import psycopg2
 from ai_module.letter_generator import generate_application_letter
+import letter 
 
 # Database connection parameters
 DB_NAME = "job_app_db"
@@ -47,24 +48,44 @@ def open_offers_window(user_id):
     import offers  # Assuming offers.py has the function to display the offers list
     offers.open_offers(user_id)
 
-def generate_letter(name, p_info, position, comp_name, comp_desc, offer, user_id, offer_id):
+def generate_letter(user_id, offer_id):
     """Calls the generate_application_letter function and stores the letter in the database."""
+    
     try:
-        # Generate the letter
-        letter = generate_application_letter(
-            name,
-            p_info,
-            position,
-            comp_name,
-            comp_desc,
-            offer
-        )
-
-        # Insert or update the letter in the applications table
+        # Connect to the database
         conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST)
         cur = conn.cursor()
 
-        # Check if the record already exists
+        # Fetch user's first name, last name, and background info from p_info table
+        cur.execute("SELECT first_name, last_name, background FROM p_info WHERE user_id = %s", (user_id,))
+        p_info_data = cur.fetchone()
+        if not p_info_data:
+            messagebox.showerror("Error", "Personal information not found for the user.")
+            return
+        
+        first_name, last_name, background = p_info_data
+        name = f"{first_name} {last_name}"  # Concatenate first and last name
+
+        # Fetch offer details from offers table
+        cur.execute("SELECT position, company, about, offer FROM offers WHERE id = %s", (offer_id,))
+        offer_data = cur.fetchone()
+        if not offer_data:
+            messagebox.showerror("Error", "Offer information not found.")
+            return
+        
+        position, company, about_company, offer_text = offer_data
+
+        # Generate the letter
+        letter = generate_application_letter(
+            name,
+            background,
+            position,
+            company,
+            about_company,
+            offer_text
+        )
+
+        # Check if the record already exists in the applications table
         cur.execute("SELECT id FROM applications WHERE user_id = %s AND offer_id = %s", (user_id, offer_id))
         existing_record = cur.fetchone()
 
@@ -93,6 +114,9 @@ def generate_letter(name, p_info, position, comp_name, comp_desc, offer, user_id
     except Exception as e:
         messagebox.showerror("Error", f"An unexpected error occurred: {e}")
 
+def view_letter(user_id, offer_id):
+    """Opens the letter view window."""
+    letter.open_letter_window(user_id, offer_id)
 
 def open_offer(offer_id, user_id):
     """Opens the detailed offer view for a specific offer."""
@@ -177,16 +201,10 @@ def open_offer(offer_id, user_id):
     back_button = tk.Button(button_frame, text="Back", command=lambda: (offer_window.destroy(), open_offers_window(user_id)))
     back_button.pack(side="left", padx=10)
 
-    generate_button = tk.Button(button_frame, text="Generate Letter", command=lambda: generate_letter(
-        "Name Placeholder",  # Replace with actual value if available
-        "Personal Info Placeholder",  # Replace with actual value if available
-        position_entry.get(),
-        company_entry.get(),
-        about_company_text.get("1.0", tk.END).strip(),
-        offer_text.get("1.0", tk.END).strip(),
-        user_id,
-        offer_id
-    ))
+    generate_button = tk.Button(button_frame, text="Generate Letter", command=lambda: generate_letter(user_id, offer_id))
     generate_button.pack(side="left", padx=10)
+
+    view_letter_button = tk.Button(button_frame, text="View Letter", command=lambda: view_letter(user_id, offer_id))
+    view_letter_button.pack(side="left", padx=10)
 
     offer_window.mainloop()
