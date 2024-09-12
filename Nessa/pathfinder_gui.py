@@ -10,9 +10,9 @@ import tkinter as tk
 def connect_db():
     try:
         conn = psycopg2.connect(
-            dbname="ApplicationTrackerApp",
-            user="your_user",
-            password="your_password",
+            dbname="postgres",
+            user="postgres",
+            password="password",
             host="localhost",
             port="5432"
         )

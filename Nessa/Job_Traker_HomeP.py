@@ -26,7 +26,7 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 # Set Color Scheme
-bg_color = "#a8b6e6"
+bg_color = "#01071a"
 fg_color = "#3053c7"
 app.configure(bg=bg_color)
 
@@ -37,6 +37,7 @@ header_frame.pack(fill="x", pady=10)
 # Create a content frame for dynamic content
 content_frame = ctk.CTkFrame(app, fg_color="#01071a", bg_color=bg_color)
 content_frame.pack(fill="both", expand=True, pady=20)
+
 
 # Function to clear the content_frame
 def clear_content_frame():

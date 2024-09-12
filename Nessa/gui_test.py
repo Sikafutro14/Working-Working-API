@@ -10,7 +10,7 @@ from PIL import Image, ImageTk
 import requests
 import tkinter as tk
 import tkinter.filedialog as filedialog
-
+#import ApplicationTrackerApp
 
 
 
@@ -19,9 +19,9 @@ import tkinter.filedialog as filedialog
 def connect_db():
     try:
         conn = psycopg2.connect(
-            dbname=" ApplicationTrackerApp",
-            user="your_user",
-            password="your_password",
+            dbname=" postgres",
+            user="postgres",
+            password="password",
             host="localhost",
             port="5432"
         )
@@ -180,7 +180,7 @@ def login_user():
         # Instantiate the ApplicationTrackerApp in the new window
         app = ApplicationTrackerApp(job_tracker_window)
         app.pack(fill="both", expand=True)
-
+    
     def register_user(self):
         # Registration logic goes here
         pass
@@ -204,22 +204,6 @@ def open_user_dashboard(user_data):
 
     search_entry = ctk.CTkEntry(search_frame, width=400)
     search_entry.pack(side="left", padx=5)
-
-    def fetch_job_details():
-        job_url = search_entry.get()
-        try:
-            # Example: Fetching job details
-            response = requests.get(job_url)
-            if response.status_code == 200:
-                job_data = response.text  # Ideally, you'd parse the job details here
-                messagebox.showinfo("Job Details", job_data)
-            else:
-                messagebox.showerror("Error", "Failed to fetch job details")
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to fetch details: {e}")
-
-    search_button = ctk.CTkButton(search_frame, text="Search", command=fetch_job_details, fg_color="#6b5717")
-    search_button.pack(side="left", padx=5)
 
     # User Options
     ctk.CTkButton(dashboard_window, text="Log Out", command=dashboard_window.destroy, fg_color="#6b5717").place(x=450, y=240)
