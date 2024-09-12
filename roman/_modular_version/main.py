@@ -62,7 +62,8 @@ def create_db_and_tables():
             CREATE TABLE IF NOT EXISTS applications (
                 id SERIAL PRIMARY KEY,
                 resume TEXT,
-                user_id INTEGER REFERENCES users(id)
+                user_id INTEGER REFERENCES users(id),
+                offer_id INTEGER REFERENCES offers(id)
             );
         """)
 
@@ -94,7 +95,7 @@ def login():
 
             if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password.encode('utf-8')):
                 messagebox.showinfo("Success", "Login successful")
-                root.destroy()  # Close login window
+                root.withdraw()  # Hide login window
                 from menu import open_menu  # Import here to avoid circular import
                 open_menu(user_id)  # Call the menu module after login
             else:
@@ -110,7 +111,7 @@ def login():
 
 def open_register_window():
     """Opens the registration window."""
-    root.destroy()  # Close the login window before opening registration
+    root.withdraw()  # Hide the login window
     from register import open_register  # Import here to avoid circular import
     open_register()
 
@@ -126,7 +127,7 @@ def open_login():
 
     window_width = 1024
     window_height = 768
-    
+
     center_window(root, window_width, window_height)
 
     tk.Label(root, text="Username").grid(row=0, column=0, padx=10, pady=10)

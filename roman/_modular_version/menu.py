@@ -12,16 +12,19 @@ def center_window(window, width, height):
 
 def open_personal_data(user_id):
     """Opens the Personal Data window."""
+    root.destroy()
     from p_data import open_p_data
     open_p_data(user_id)
 
 def open_offers(user_id):
     """Opens the Offers window."""
+    root.destroy()
     from offers import open_offers
     open_offers(user_id)
 
 def logout():
     """Handles user logout."""
+    root.destroy()
     from main import open_login
     root.destroy()
     open_login()

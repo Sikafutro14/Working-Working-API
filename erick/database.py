@@ -4,6 +4,7 @@ from user_auth import get_db_connection
 
 def create_tables(conn):
     cur = conn.cursor()
+
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
@@ -12,48 +13,40 @@ def create_tables(conn):
             password VARCHAR(255) NOT NULL
         )
     """)
+    
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS Details (
-            user_id SERIAL PRIMARY KEY REFERENCES users(id), 
-            full_name VARCHAR(255),                  
+        CREATE TABLE IF NOT EXISTS personal_info (
+            user_id INTEGER PRIMARY KEY REFERENCES users(id), 
+            first_name VARCHAR(255),   
+            last_name VARCHAR(255),               
             email VARCHAR(255) UNIQUE,               
-            phone_number VARCHAR(20),                
-            location VARCHAR(255), 
-            objective TEXT
+            background TEXT
         )
     """)
+    
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS Profiles (
-            user_id SERIAL PRIMARY KEY REFERENCES users(id),              
-            work_experience JSONB,                   
-            education JSONB,                         
-            skills TEXT[],                           
-            
-            achievements TEXT[],                     
-            volunteer_work TEXT[],                   
-            references_info JSONB                         
-        )
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS Offers (
+        CREATE TABLE IF NOT EXISTS offers (
             id SERIAL PRIMARY KEY,
             user_id INTEGER REFERENCES users(id),
-            title VARCHAR(100),
-            company VARCHAR(100),
-            department VARCHAR(100),
-            offer_url TEXT,
-            company_description TEXT,
-            offer_text TEXT
+            position VARCHAR(255),
+            company VARCHAR(255),
+            about TEXT,
+            offer TEXT,
+            url VARCHAR(255),
+            status INTEGER,
+            response BOOLEAN
         )
     """)
+    
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS Applications (
+        CREATE TABLE IF NOT EXISTS applications (
             id SERIAL PRIMARY KEY,
             user_id INTEGER REFERENCES users(id),
             offer_id INTEGER REFERENCES offers(id),
             application_letter TEXT
         )
     """)
+
     conn.commit()
     cur.close()
 
