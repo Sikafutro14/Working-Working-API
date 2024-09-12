@@ -5,7 +5,7 @@ from psycopg2 import extras
 import hashlib
 import os
 import sys
-from ai_module import generate_application_letter
+from roman._old_crap.ai_module import generate_application_letter
 
 # Function to hash passwords
 def hash_password(password):

@@ -1,17 +1,19 @@
 import openai
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, Menu
 from tkinter.scrolledtext import ScrolledText
 import os
 from dotenv import load_dotenv
-from resume_generator import generate_resume_letter, fetch_personal_info
-from user_auth import register, login, get_db_connection
-
+from sunny_resume_gen import generate_resume_letter, fetch_personal_info
+from sunny_user_auth import register, login, get_db_connection
+import customtkinter as ctk
+from CTkToolTip import CTkToolTip
 
 load_dotenv()
 
-class JobFinderAI:
+class JobFinderAI(ctk.CTk):
     def __init__(self):
+        super().__init__()
         self.api_key = os.getenv('OPENAI_API_KEY')
         self.current_user_id = None
         self.system_role = "You are here to help the user to find a job"
@@ -19,18 +21,17 @@ class JobFinderAI:
         self.setup_openai(self.api_key)
         self.login_screen()
 
-    # Function to initialize OpenAI API
+        self.setup_resume_generator_tab()
+
     def setup_openai(self, api_key):
         openai.api_key = api_key
 
-    # Function to initialize login screen
     def login_screen(self):
         self.root = tk.Tk()
         self.root.title("Login")
         self.create_login_widgets()
         self.root.mainloop()
 
-    # Function to create widgets for login screen
     def create_login_widgets(self):
         tk.Label(self.root, text="Username:").pack(pady=5)
         self.username_entry = tk.Entry(self.root)
@@ -221,7 +222,6 @@ class JobFinderAI:
         except Exception as e:
             messagebox.showerror("Error", f"Failed to submit or update details: {e}")
 
-    # Function to initialize the JobFind Interface
     def jobfind_interface(self):
         self.root = tk.Tk()
         self.root.title("JobFind Interface")
@@ -272,7 +272,85 @@ class JobFinderAI:
         self.chat_log.insert(tk.END, message)
         self.chat_log.config(state=tk.DISABLED)
 
-    # Function to display generated resume
+    def setup_main_interface(self):
+        self.root = ctk.CTk()
+        self.root.title("JobFind Interface")
+
+        # Main container
+        self.main_frame = ctk.CTkFrame(self.root, fg_color=self.dark_blue)
+        self.main_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+        # Header
+        header_frame = ctk.CTkFrame(self.main_frame, fg_color=self.accent_color)
+        header_frame.pack(fill="x", pady=(0, 20))
+
+        header_label = ctk.CTkLabel(header_frame, text="JobFind", font=("Roboto", 24, "bold"), text_color=self.white)
+        header_label.pack(pady=10)
+
+        # Tabview
+        self.tabview = ctk.CTkTabview(self.main_frame, fg_color=self.accent_color, segmented_button_fg_color=self.dark_blue, segmented_button_unselected_color=self.accent_color)
+        self.tabview.pack(fill="both", expand=True)
+
+        self.jobfind_tab = self.tabview.add("JobFind")
+        self.resume_generator_tab = self.tabview.add("Resume Generator")
+
+        self.create_jobfind_interface()
+        self.setup_resume_generator_tab()
+
+    def create_jobfind_interface(self):
+        self.chat_log = ScrolledText(self.jobfind_tab, wrap=tk.WORD, state=tk.DISABLED, bg="white", fg="black", font=("Arial", 12))
+        self.chat_log.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+
+        self.user_entry = tk.Entry(self.jobfind_tab, font=("Arial", 12))
+        self.user_entry.pack(padx=10, pady=10, fill=tk.X)
+        self.user_entry.bind("<Return>", self.send_message)
+
+        send_button = tk.Button(self.jobfind_tab, text="Send", command=self.send_message, font=("Arial", 12))
+        send_button.pack(pady=5)
+
+        resume_button = tk.Button(self.jobfind_tab, text="Generate Resume", command=self.display_resume, font=("Arial", 12))
+        resume_button.pack(pady=5)
+
+    def setup_resume_generator_tab(self):
+        self.resume_generator_tab.grid_columnconfigure(0, weight=1)
+        self.resume_generator_tab.grid_rowconfigure(1, weight=1)
+
+        # Top frame for input and buttons
+        top_frame = ctk.CTkFrame(self.resume_generator_tab, fg_color="transparent")
+        top_frame.grid(row=0, column=0, sticky="ew", pady=(0, 10))
+        top_frame.grid_columnconfigure(1, weight=1)
+
+        # Full name input
+        self.full_name_entry = ctk.CTkEntry(top_frame, placeholder_text="Full Name", width=300, height=40, 
+                                            font=("Roboto", 14), fg_color=self.white, text_color=self.dark_blue)
+        self.full_name_entry.grid(row=0, column=0, padx=(0, 20))
+
+        # Buttons
+        button_frame = ctk.CTkFrame(top_frame, fg_color="transparent")
+        button_frame.grid(row=0, column=1, sticky="e")
+
+        generate_button = ctk.CTkButton(button_frame, text="Generate Resume", command=self.generate_resume, width=150, height=40, 
+                                        font=("Roboto", 12), fg_color=self.accent_color, hover_color=self.white,
+                                        border_width=2, border_color=self.white)
+        generate_button.grid(row=0, column=0, padx=5)
+        CTkToolTip(generate_button, message="Generate a resume based on the provided details")
+
+        # Resume display area
+        self.resume_text_area = ctk.CTkTextbox(self.resume_generator_tab, fg_color=self.white, text_color=self.dark_blue, 
+                                               font=("Roboto", 12), wrap="word", state="normal")
+        self.resume_text_area.grid(row=1, column=0, sticky="nsew", padx=20, pady=10)
+
+    def generate_resume(self):
+        full_name = self.full_name_entry.get()
+        if full_name:
+            resume_text = generate_resume_letter(full_name)
+            self.resume_text_area.configure(state="normal")
+            self.resume_text_area.delete("1.0", tk.END)
+            self.resume_text_area.insert("1.0", resume_text)
+            self.resume_text_area.configure(state="disabled")
+        else:
+            messagebox.showerror("Error", "Please enter a full name to generate the resume.")
+
     def display_resume(self):
         if not self.current_user_id:
             self.update_chat_log("No user logged in. Please log in first.\n")
@@ -284,3 +362,8 @@ class JobFinderAI:
 
 # Run the application
 app = JobFinderAI()
+app.mainloop()
+
+
+
+

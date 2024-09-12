@@ -34,24 +34,24 @@ def generate_application_letter(name, p_info, position, comp_name, comp_desc, of
 
 # Example Data: 
 
-name = 'Siggi Halfpape'
-p_info = "Ich bin der Siggi Halfpape. Ich bin ganz gut mit Maschinen. Drehmaschinen, das ist so mein Ding. Ich mach das schon lange und weiß, wie man da die Knöpfe drücken muss. Ich bin nicht so der große Denker, aber wenn's um's Drehen geht, da bin ich dabei."
-position = 'Drehmaschinen Lotzi'
-comp_name = 'Horst Schwankowski Metall KG'
-comp_desc = '''
-Horst 'Schwankowski Metall KG' ist ein traditionsreiches Familienunternehmen mit langjähriger 
-Erfahrung in der Metallbearbeitung. Wir sind spezialisiert auf die Herstellung hochwertiger 
-Präzisionsteile für verschiedene Branchen. Unser Unternehmen zeichnet 
-sich durch eine moderne Infrastruktur, ein engagiertes Team und eine hohe Kundenorientierung aus.
-'''
-offer = '''
-Horst 'Schwankowski Metall KG sucht einen engagierten Drehmaschinen Lotzi (m/w/d) für unser hochmodernes Produktionswerk in Kall. Als Drehmaschinen Lotzi sind Sie für die präzise Bearbeitung von Metallteilen auf Drehmaschinen verantwortlich.
+# name = 'Siggi Halfpape'
+# p_info = "Ich bin der Siggi Halfpape. Ich bin ganz gut mit Maschinen. Drehmaschinen, das ist so mein Ding. Ich mach das schon lange und weiß, wie man da die Knöpfe drücken muss. Ich bin nicht so der große Denker, aber wenn's um's Drehen geht, da bin ich dabei."
+# position = 'Drehmaschinen Lotzi'
+# comp_name = 'Horst Schwankowski Metall KG'
+# comp_desc = '''
+# Horst 'Schwankowski Metall KG' ist ein traditionsreiches Familienunternehmen mit langjähriger 
+# Erfahrung in der Metallbearbeitung. Wir sind spezialisiert auf die Herstellung hochwertiger 
+# Präzisionsteile für verschiedene Branchen. Unser Unternehmen zeichnet 
+# sich durch eine moderne Infrastruktur, ein engagiertes Team und eine hohe Kundenorientierung aus.
+# '''
+# offer = '''
+# Horst 'Schwankowski Metall KG sucht einen engagierten Drehmaschinen Lotzi (m/w/d) für unser hochmodernes Produktionswerk in Kall. Als Drehmaschinen Lotzi sind Sie für die präzise Bearbeitung von Metallteilen auf Drehmaschinen verantwortlich.
 
-Ihre Aufgaben:
+# Ihre Aufgaben:
 
-    Bedienung und Wartung von CNC-Drehmaschinen
-    Einhaltung von Qualitätsstandards und Toleranzen
-    Durchführung von Qualitätskontrollen
-    Optimierung von Arbeitsabläufen'''
+#     Bedienung und Wartung von CNC-Drehmaschinen
+#     Einhaltung von Qualitätsstandards und Toleranzen
+#     Durchführung von Qualitätskontrollen
+#     Optimierung von Arbeitsabläufen'''
 
-print(generate_application_letter(name, p_info, position, comp_name, comp_desc, offer))
+# print(generate_application_letter(name, p_info, position, comp_name, comp_desc, offer))

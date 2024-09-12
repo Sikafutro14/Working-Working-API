@@ -1,22 +1,24 @@
 import customtkinter as ctk
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, Menu
 from CTkToolTip import CTkToolTip
 import openai
 from sunny_gpt import *
 from sunny_offers import *
+from sunny_resume_gen import *
+from sunny_user_auth import *
 import os
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
 
-class ApplicationTrackerApp(ctk.CTk):
+class ResumeApp(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("Application Tracker")
-        self.geometry("1200x800")
+        self.title("Resume Writer AI")
+        self.geometry("1400x1200")
 
         # Custom color scheme
         self.dark_blue = "#00274D"
@@ -33,11 +35,17 @@ class ApplicationTrackerApp(ctk.CTk):
         self.api_key = os.getenv("OPENAI_API_KEY")
         self.client = None
 
-        
-
         # Initialize OpenAI client and database connection
         self.gpt_app = ApplicationTrackerGPT(self)
         self.db_app = ApplicationTrackerOffers(self)
+
+        '''self.db_app.create_offer(offer_title)
+        self.db_app.update_offer(offer_id, new_title)
+        self.db_app.delete_offer(offer_id)
+        offers = self.db_app.fetch_offers()'''
+
+
+
 
         # Initialize the application
         self.setup_main_interface()
@@ -54,7 +62,7 @@ class ApplicationTrackerApp(ctk.CTk):
         header_frame = ctk.CTkFrame(self.main_frame, fg_color=self.accent_color)
         header_frame.pack(fill="x", pady=(0, 20))
 
-        header_label = ctk.CTkLabel(header_frame, text="Application Tracker", font=("Roboto", 24, "bold"), text_color=self.white)
+        header_label = ctk.CTkLabel(header_frame, text="Resume Writer AI", font=("Roboto", 24, "bold"), text_color=self.white)
         header_label.pack(pady=10)
 
         # Tabview
@@ -64,8 +72,15 @@ class ApplicationTrackerApp(ctk.CTk):
         self.offer_management_tab = self.tabview.add("Offer Management")
         self.ask_chatgpt_tab = self.tabview.add("Ask ChatGPT")
 
+        # Resume Generation Tab
+        self.resume_generation_tab = self.tabview.add("Resume Generation")
+        self.setup_resume_generation_tab()  # Call the setup function for the new tab
+
         self.setup_offer_management_tab()
         self.setup_ask_chatgpt_tab()
+
+        # Bind the context menu to the prompt_entry
+        self.prompt_entry.bind("<Button-3>", self.show_context_menu)
 
     def initialize_database(self):
         if self.db_app:
@@ -76,20 +91,31 @@ class ApplicationTrackerApp(ctk.CTk):
     def setup_offer_management_tab(self):
         self.offer_management_tab.grid_columnconfigure(0, weight=1)
         self.offer_management_tab.grid_rowconfigure(1, weight=1)
+        
+        # Input fields for ID, Company, and Title
+        self.id_entry = ctk.CTkEntry(self.offer_management_tab, placeholder_text="Offer ID", width=300, height=40, 
+                                    font=("Roboto", 14), fg_color=self.white, text_color=self.dark_blue)
+        self.id_entry.grid(row=0, column=0, padx=20, pady=(10, 5))
 
-        # Top frame for input and buttons
-        top_frame = ctk.CTkFrame(self.offer_management_tab, fg_color="transparent")
-        top_frame.grid(row=0, column=0, sticky="ew", pady=(0, 10))
-        top_frame.grid_columnconfigure(1, weight=1)
-
-        # Offer title input
-        self.offer_entry = ctk.CTkEntry(top_frame, placeholder_text="Offer Title", width=300, height=40, 
+        self.company_entry = ctk.CTkEntry(self.offer_management_tab, placeholder_text="Company", width=300, height=40, 
                                         font=("Roboto", 14), fg_color=self.white, text_color=self.dark_blue)
-        self.offer_entry.grid(row=0, column=0, padx=(0, 20))
+        self.company_entry.grid(row=1, column=0, padx=20, pady=5)
+
+        self.title_entry = ctk.CTkEntry(self.offer_management_tab, placeholder_text="Offer Title", width=300, height=40, 
+                                        font=("Roboto", 14), fg_color=self.white, text_color=self.dark_blue)
+        self.title_entry.grid(row=2, column=0, padx=20, pady=10)
+
+        create_offer_button = ctk.CTkButton(self.offer_management_tab, text="Create Offer", command=self.create_offer)
+        create_offer_button.grid(row=3, column=0, pady=(0, 10))
+
+        # Top frame for buttons
+        top_frame = ctk.CTkFrame(self.offer_management_tab, fg_color="transparent")
+        top_frame.grid(row=0, column=1, rowspan=4, sticky="nsew", padx=20, pady=(10, 20))
+        top_frame.grid_columnconfigure(0, weight=1)
 
         # Buttons
         button_frame = ctk.CTkFrame(top_frame, fg_color="transparent")
-        button_frame.grid(row=0, column=1, sticky="e")
+        button_frame.grid(row=0, column=0, sticky="ew")
 
         buttons = [
             ("Create", self.create_offer),
@@ -106,34 +132,23 @@ class ApplicationTrackerApp(ctk.CTk):
             CTkToolTip(btn, message=f"{text} offer")
 
         # Create Treeview for PostgreSQL-like display
-        self.tree = ttk.Treeview(self.offer_management_tab, columns=("id", "user_id", "company", "department", "offer_url", "company_description", "offer_text", "status", "response", "title"), show="headings")
+        self.tree = ttk.Treeview(self.offer_management_tab, columns=("id", "company", "title"), show="headings")
         
         # Define column headings
         for col in self.tree["columns"]:
             self.tree.heading(col, text=col.capitalize())
             self.tree.column(col, width=100, anchor="w")
 
-        # Set specific widths for certain columns
-        self.tree.column("id", width=50, anchor="center")
-        self.tree.column("user_id", width=50, anchor="center")
-        self.tree.column("company", width=150)
-        self.tree.column("offer_url", width=200)
-        self.tree.column("company_description", width=200)
-        self.tree.column("offer_text", width=200)
-        self.tree.column("status", width=50, anchor="center")
-        self.tree.column("response", width=50, anchor="center")
-        self.tree.column("title", width=200)
-
         # Create a vertical scrollbar
         vsb = ttk.Scrollbar(self.offer_management_tab, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=vsb.set)
 
         # Grid layout for Treeview and scrollbar
-        self.tree.grid(row=1, column=0, sticky="nsew", padx=(20, 0), pady=10)
-        vsb.grid(row=1, column=1, sticky="ns", pady=10)
+        self.tree.grid(row=4, column=0, columnspan=2, sticky="nsew", padx=(20, 0), pady=10)
+        vsb.grid(row=4, column=2, sticky="ns", pady=10)
 
         # Configure row and column weights
-        self.offer_management_tab.grid_rowconfigure(1, weight=1)
+        self.offer_management_tab.grid_rowconfigure(4, weight=1)
         self.offer_management_tab.grid_columnconfigure(0, weight=1)
 
         # Style configuration for Treeview
@@ -150,7 +165,11 @@ class ApplicationTrackerApp(ctk.CTk):
                         foreground=self.white,
                         relief="flat")
         style.map("Treeview.Heading",
-                  background=[('active', self.shade)])
+                background=[('active', self.shade)])
+
+
+
+
 
     def create_table_headers(self):
         headers = ["ID", "Company", "Department", "Offer URL", "Company Description", "Offer Text", "Status", "Response", "Title"]
@@ -161,27 +180,54 @@ class ApplicationTrackerApp(ctk.CTk):
             self.table_frame.grid_columnconfigure(i, weight=1)
 
     def create_offer(self):
+        offer_id = self.id_entry.get()
+        company = self.company_entry.get()
+        title = self.title_entry.get()
+
         if self.db_app:
-            self.db_app.create_offer()
+            # Call method to create offer in the database
+            self.db_app.create_offer(offer_id, company, title)
+            self.display_offers()  # Update the display after creating an offer
         else:
             messagebox.showerror("Error", "Database connection not initialized")
+
+
+
 
     def update_offer(self):
-        if self.db_app:
-            self.db_app.update_offer()
-        else:
-            messagebox.showerror("Error", "Database connection not initialized")
+        selected_item = self.tree.selection()  # Get selected offer from the table
+        if selected_item:
+            offer_id = self.tree.item(selected_item)["values"][0]  # Get offer ID from the selected item
+            new_title = self.offer_title_entry.get()  # Get new title from the input field
+            if self.db_app:
+                self.db_app.update_offer(offer_id, new_title)
+                self.display_offers()  # Update the display after updating an offer
+            else:
+                messagebox.showerror("Error", "Database connection not initialized")
+
+
 
     def delete_offer(self):
-        if self.db_app:
-            self.db_app.delete_offer()
-        else:
-            messagebox.showerror("Error", "Database connection not initialized")
+        selected_item = self.tree.selection()  # Get selected offer from the table
+        if selected_item:
+            offer_id = self.tree.item(selected_item)["values"][0]  # Get offer ID from the selected item
+            if self.db_app:
+                self.db_app.delete_offer(offer_id)
+                self.display_offers()  # Update the display after deleting an offer
+            else:
+                messagebox.showerror("Error", "Database connection not initialized")
+
+
 
     def display_offers(self):
-        # Clear existing items
         for item in self.tree.get_children():
             self.tree.delete(item)
+
+        offers = self.db_app.fetch_offers()
+
+        for offer in offers:
+            self.tree.insert("", "end", values=offer)
+
 
         # Fetch offers from the database
         offers = self.db_app.fetch_offers()
@@ -206,6 +252,54 @@ class ApplicationTrackerApp(ctk.CTk):
         else:
             empty_label = ctk.CTkLabel(self.scrollable_frame, text="No offers available", font=("Roboto", 12), text_color=self.dark_blue)
             empty_label.grid(row=1, column=0, columnspan=9, pady=20)
+
+    
+    def setup_resume_generation_tab(self):
+        # Main frame for the tab
+        resume_frame = ctk.CTkFrame(self.resume_generation_tab, fg_color="transparent")
+        resume_frame.pack(fill="both", expand=True, pady=20)
+
+         # Create a label and entry for User ID
+        user_id_label = ctk.CTkLabel(resume_frame, text="User ID:", font=("Roboto", 14), text_color=self.white)
+        user_id_label.pack(pady=(10, 0))
+
+        self.user_id_entry = ctk.CTkEntry(resume_frame, placeholder_text="Enter your User ID", width=200, height=40, 
+                                        font=("Roboto", 14), fg_color=self.white, text_color=self.dark_blue)
+        self.user_id_entry.pack(pady=(0, 20))
+
+        self.generate_resume_button = ctk.CTkButton(resume_frame, text="Generate Resume", command=self.generate_resume, width=150, height=40,
+                                                    font=("Roboto", 12), fg_color=self.accent_color, hover_color=self.shade)
+        self.generate_resume_button.pack(pady=(10, 20))
+
+        # Output Section for the resume
+        self.resume_output_box = ctk.CTkTextbox(resume_frame, fg_color=self.white, text_color=self.dark_blue,
+                                                font=("Roboto", 12), wrap="word", state="normal")
+        self.resume_output_box.pack(fill="both", expand=True, pady=(0, 20))
+
+
+
+    def generate_resume(self):
+        user_id = self.user_id_entry.get()  # Retrieve the User ID from the input field
+
+        if not user_id:
+            self.show_error_message("Please enter a User ID.")
+            return
+
+        # Call the resume generation function, possibly from `sunny_resume_gen.py`
+        resume = generate_resume_letter(user_id)  # This is presumably in your `sunny_resume_gen.py`
+
+        if resume:
+            self.resume_output_box.delete(1.0, "end")
+            self.resume_output_box.insert("end", resume)
+        else:
+            self.show_error_message("Failed to generate resume.")
+
+
+    def show_error_message(self, message):
+        tk.messagebox.showerror("Error", message)
+
+    def show_info_message(self, message):
+        tk.messagebox.showinfo("Info", message)
 
 
     def setup_ask_chatgpt_tab(self):
@@ -244,8 +338,11 @@ class ApplicationTrackerApp(ctk.CTk):
         self.bind("<Button-3>", self.show_context_menu)  # Bind right-click
 
     def show_context_menu(self, event):
-        self.context_menu.post(event.x_root, event.y_root)
+        widget = event.widget
+        self.context_menu.entryconfigure("Copy", state="normal" if widget.selection_present() else "disabled")
+        self.context_menu.tk_popup(event.x_root, event.y_root)
 
+    
     def copy_selection(self):
         try:
             selected_text = self.focus_get().get(tk.SEL_FIRST, tk.SEL_LAST)
@@ -261,7 +358,6 @@ class ApplicationTrackerApp(ctk.CTk):
             messagebox.showwarning("Paste Error", "Failed to paste text.")
 
 if __name__ == "__main__":
-    app = ApplicationTrackerApp()
+    app = ResumeApp()
     app.gpt_app.initialize_openai_client()  # Initialize OpenAI client
-    app.db_app.populate_db_with_fake_data()
     app.mainloop()

@@ -1,26 +1,21 @@
-import psycopg2
 import openai
 from user_auth import get_db_connection
 
 def fetch_personal_info(user_id):
     try:
         conn = get_db_connection()
-
-        # Open a cursor to perform database operations
         cur = conn.cursor()
 
-        # Execute a query
         cur.execute("""
-            SELECT p.full_name, p.email, p.phone_number, p.location, p.objective 
+            SELECT p.first_name, p.last_name, p.email, p.background
             FROM users u
-            JOIN details p ON u.id = p.user_id
+            JOIN personal_info p ON u.id = p.user_id
             WHERE u.id = %s
         """, (user_id,))
 
         # Retrieve query results
         personal_info = cur.fetchone()
 
-        # Close the cursor and connection
         cur.close()
         conn.close()
 
@@ -30,26 +25,58 @@ def fetch_personal_info(user_id):
         print(f"An error occurred: {e}")
         return None
 
-def generate_resume_letter(user_id):
+def fetch_offer_info(offer_id):
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT position, company, about, offer, url
+            FROM offers
+            WHERE id = %s
+        """, (offer_id,))
+
+        offer_info = cur.fetchone()
+
+        cur.close()
+        conn.close()
+
+        return offer_info
+
+    except Exception as e:
+        print(f"An error occurred while fetching offer info: {e}")
+        return None
+
+def generate_resume_letter(user_id, offer_id):
     personal_info = fetch_personal_info(user_id)
+    offer_info = fetch_offer_info(offer_id)
 
     if not personal_info:
         return "User data not found."
+    
+    if not offer_info:
+        return "Offer data not found."
 
     # Unpack the data
-    full_name, email, phone_number, location, objective = personal_info
+    first_name, last_name, email, background = personal_info
+    position, company, about, offer, url = offer_info
 
-    # Create a prompt for the resume letter
     prompt = f"""
-    Help me to create a resume letter, 
-    My name is:{full_name}.
-    Contact details: Email - {email}.
-    Phone Number: {phone_number}.
-    Location: {location}.
-    Objective: {objective}.
+    Help me to create a resume letter.
+    
+    Personal Information:
+    Name: {first_name} {last_name}
+    Contact Email: {email}
+    Background: {background}
+    
+    Job Offer Information:
+    Position: {position}
+    Company: {company}
+    About Company: {about}
+    Offer Details: {offer}
+    Application URL: {url}
     """
 
-    # Get the response from ChatGPT
     try:
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
