@@ -43,12 +43,12 @@ def save_letter(user_id, offer_id, letter_text):
 
 def open_letter_window(user_id, offer_id):
     """Opens the letter window and displays the generated letter."""
-    letter_window = tk.Toplevel()
-    letter_window.title("Generated Letter")
+    root = tk.Tk()
+    root.title("Generated Letter")
 
     window_width = 1024
     window_height = 768
-    center_window(letter_window, window_width, window_height)
+    center_window(root, window_width, window_height)
 
     # Fetch the generated letter from the database
     try:
@@ -59,7 +59,7 @@ def open_letter_window(user_id, offer_id):
 
         if not letter_data:
             messagebox.showerror("Error", "No letter found for this offer.")
-            letter_window.destroy()
+            root.destroy()
             return
 
         letter_text = letter_data[0]
@@ -68,22 +68,22 @@ def open_letter_window(user_id, offer_id):
 
     except psycopg2.Error as e:
         messagebox.showerror("Database Error", f"An error occurred while retrieving the letter: {e}")
-        letter_window.destroy()
+        root.destroy()
         return
 
     # Textbox for displaying and editing the letter
-    text_box = tk.Text(letter_window, wrap="word", width=100, height=30)
+    text_box = tk.Text(root, wrap="word", width=100, height=30)
     text_box.insert("1.0", letter_text)
     text_box.grid(row=0, column=0, padx=10, pady=10)
 
     # Buttons
-    button_frame = tk.Frame(letter_window)
+    button_frame = tk.Frame(root)
     button_frame.grid(row=1, column=0, pady=20)
 
     save_button = tk.Button(button_frame, text="Save", command=lambda: save_letter(user_id, offer_id, text_box.get("1.0", tk.END).strip()))
     save_button.pack(side="left", padx=10)
 
-    back_button = tk.Button(button_frame, text="Back", command=letter_window.destroy)
+    back_button = tk.Button(button_frame, text="Back", command=root.destroy)
     back_button.pack(side="left", padx=10)
 
-    letter_window.mainloop()
+    root.mainloop()
