@@ -38,7 +38,9 @@ def create_database_and_tables():
             username VARCHAR(100) UNIQUE,
             password VARCHAR(100)
         );
+          
         ''')
+       
         conn.commit()
         cursor.close()
         conn.close()
@@ -223,3 +225,5 @@ center_widget(register_button, register_button.winfo_reqwidth(), 270)
 create_database_and_tables()  # Ensure tables exist
 
 app.mainloop()
+
+
