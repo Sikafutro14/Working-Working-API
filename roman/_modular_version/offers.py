@@ -53,43 +53,43 @@ def open_menu(user_id):
 
 def open_offers(user_id):
     """Opens the window displaying the user's offers."""
-    offers_window = tk.Toplevel()
-    offers_window.title("Your Offers")
+    root = tk.Tk()
+    root.title("Your Offers")
 
     window_width = 1024
     window_height = 768
 
-    center_window(offers_window, window_width, window_height)
+    center_window(root, window_width, window_height)
 
     # Fetch the offers for the logged-in user
     offers = fetch_offers(user_id)
 
     # Labels for the columns
-    tk.Label(offers_window, text="Position", width=20, anchor="w").grid(row=0, column=0, padx=10, pady=10)
-    tk.Label(offers_window, text="Company", width=20, anchor="w").grid(row=0, column=1, padx=10, pady=10)
-    tk.Label(offers_window, text="Status", width=15, anchor="w").grid(row=0, column=2, padx=10, pady=10)
-    tk.Label(offers_window, text="Response", width=15, anchor="w").grid(row=0, column=3, padx=10, pady=10)
-    tk.Label(offers_window, text="Action", width=10).grid(row=0, column=4, padx=10, pady=10)
+    tk.Label(root, text="Position", width=20, anchor="w").grid(row=0, column=0, padx=10, pady=10)
+    tk.Label(root, text="Company", width=20, anchor="w").grid(row=0, column=1, padx=10, pady=10)
+    tk.Label(root, text="Status", width=15, anchor="w").grid(row=0, column=2, padx=10, pady=10)
+    tk.Label(root, text="Response", width=15, anchor="w").grid(row=0, column=3, padx=10, pady=10)
+    tk.Label(root, text="Action", width=10).grid(row=0, column=4, padx=10, pady=10)
 
     # Display each offer with a "Select" button
     for idx, offer in enumerate(offers):
         offer_id, position, company, status, response = offer
-        tk.Label(offers_window, text=position, width=20, anchor="w").grid(row=idx+1, column=0, padx=10, pady=5)
-        tk.Label(offers_window, text=company, width=20, anchor="w").grid(row=idx+1, column=1, padx=10, pady=5)
-        tk.Label(offers_window, text=status, width=15, anchor="w").grid(row=idx+1, column=2, padx=10, pady=5)
-        tk.Label(offers_window, text=response, width=15, anchor="w").grid(row=idx+1, column=3, padx=10, pady=5)
+        tk.Label(root, text=position, width=20, anchor="w").grid(row=idx+1, column=0, padx=10, pady=5)
+        tk.Label(root, text=company, width=20, anchor="w").grid(row=idx+1, column=1, padx=10, pady=5)
+        tk.Label(root, text=status, width=15, anchor="w").grid(row=idx+1, column=2, padx=10, pady=5)
+        tk.Label(root, text=response, width=15, anchor="w").grid(row=idx+1, column=3, padx=10, pady=5)
 
         # Button to select and view offer details
-        select_button = tk.Button(offers_window, text="Select", command=lambda offer_id=offer_id: open_offer_details(offer_id, user_id))
+        select_button = tk.Button(root, text="Select", command=lambda offer_id=offer_id: (root.destroy(), open_offer_details(offer_id, user_id)))
 
         select_button.grid(row=idx+1, column=4, padx=10, pady=5)
 
     # Back button to return to the menu
-    back_button = tk.Button(offers_window, text="Back", command=lambda: (offers_window.destroy(), open_menu(user_id)))
+    back_button = tk.Button(root, text="Back", command=lambda: (root.destroy(), open_menu(user_id)))
     back_button.grid(row=len(offers)+1, column=0, padx=10, pady=10)
 
     # New Offer button to open the new offer form
-    new_offer_button = tk.Button(offers_window, text="New Offer", command=lambda: open_new_offer(user_id))
+    new_offer_button = tk.Button(root, text="New Offer", command=lambda: (root.destroy(),open_new_offer(user_id)))
     new_offer_button.grid(row=len(offers)+1, column=1, padx=10, pady=10)
 
-    offers_window.mainloop()
+    root.mainloop()

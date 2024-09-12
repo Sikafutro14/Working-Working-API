@@ -120,12 +120,12 @@ def view_letter(user_id, offer_id):
 
 def open_offer(offer_id, user_id):
     """Opens the detailed offer view for a specific offer."""
-    offer_window = tk.Toplevel()
-    offer_window.title("Offer Details")
+    root = tk.Tk()
+    root.title("Offer Details")
 
     window_width = 1024
     window_height = 768
-    center_window(offer_window, window_width, window_height)
+    center_window(root, window_width, window_height)
 
     # Fetch offer details from the database
     try:
@@ -137,51 +137,51 @@ def open_offer(offer_id, user_id):
         conn.close()
     except psycopg2.Error as e:
         messagebox.showerror("Database Error", f"An error occurred while retrieving the offer: {e}")
-        offer_window.destroy()
+        root.destroy()
         return
 
     # Create input fields
-    tk.Label(offer_window, text="Position").grid(row=0, column=0, padx=10, pady=5, sticky="w")
-    position_entry = tk.Entry(offer_window, width=80)
+    tk.Label(root, text="Position").grid(row=0, column=0, padx=10, pady=5, sticky="w")
+    position_entry = tk.Entry(root, width=80)
     position_entry.grid(row=0, column=1, padx=10, pady=5)
     position_entry.insert(0, offer_data[0])
 
-    tk.Label(offer_window, text="Company").grid(row=1, column=0, padx=10, pady=5, sticky="w")
-    company_entry = tk.Entry(offer_window, width=80)
+    tk.Label(root, text="Company").grid(row=1, column=0, padx=10, pady=5, sticky="w")
+    company_entry = tk.Entry(root, width=80)
     company_entry.grid(row=1, column=1, padx=10, pady=5)
     company_entry.insert(0, offer_data[1])
 
-    tk.Label(offer_window, text="Offer").grid(row=2, column=0, padx=10, pady=5, sticky="nw")
-    offer_text = tk.Text(offer_window, width=80, height=10)
+    tk.Label(root, text="Offer").grid(row=2, column=0, padx=10, pady=5, sticky="nw")
+    offer_text = tk.Text(root, width=80, height=10)
     offer_text.grid(row=2, column=1, padx=10, pady=5)
     offer_text.insert("1.0", offer_data[2])
 
-    tk.Label(offer_window, text="About the Company").grid(row=3, column=0, padx=10, pady=5, sticky="nw")
-    about_company_text = tk.Text(offer_window, width=80, height=10)
+    tk.Label(root, text="About the Company").grid(row=3, column=0, padx=10, pady=5, sticky="nw")
+    about_company_text = tk.Text(root, width=80, height=10)
     about_company_text.grid(row=3, column=1, padx=10, pady=5)
     about_company_text.insert("1.0", offer_data[3])
 
-    tk.Label(offer_window, text="URL").grid(row=4, column=0, padx=10, pady=5, sticky="w")
-    url_entry = tk.Entry(offer_window, width=80)
+    tk.Label(root, text="URL").grid(row=4, column=0, padx=10, pady=5, sticky="w")
+    url_entry = tk.Entry(root, width=80)
     url_entry.grid(row=4, column=1, padx=10, pady=5)
     url_entry.insert(0, offer_data[4])
 
     # Response (True/False) using radio buttons
-    tk.Label(offer_window, text="Response").grid(row=5, column=0, padx=10, pady=5, sticky="w")
+    tk.Label(root, text="Response").grid(row=5, column=0, padx=10, pady=5, sticky="w")
     response_var = tk.BooleanVar(value=offer_data[5])
-    tk.Radiobutton(offer_window, text="True", variable=response_var, value=True).grid(row=5, column=1, padx=5, sticky="w")
-    tk.Radiobutton(offer_window, text="False", variable=response_var, value=False).grid(row=5, column=1, padx=60, sticky="w")
+    tk.Radiobutton(root, text="True", variable=response_var, value=True).grid(row=5, column=1, padx=5, sticky="w")
+    tk.Radiobutton(root, text="False", variable=response_var, value=False).grid(row=5, column=1, padx=60, sticky="w")
 
     # Status using dropdown
-    tk.Label(offer_window, text="Status").grid(row=6, column=0, padx=10, pady=5, sticky="w")
-    status_var = tk.StringVar(offer_window)
+    tk.Label(root, text="Status").grid(row=6, column=0, padx=10, pady=5, sticky="w")
+    status_var = tk.StringVar(root)
     status_options = {0: "None", 1: "Open", 2: "Applied", 3: "Rejected", 4: "Accepted"}
-    status_menu = ttk.Combobox(offer_window, textvariable=status_var, values=list(status_options.values()))
+    status_menu = ttk.Combobox(root, textvariable=status_var, values=list(status_options.values()))
     status_menu.grid(row=6, column=1, padx=10, pady=5)
     status_menu.set(status_options.get(offer_data[6], "None"))
 
     # Buttons
-    button_frame = tk.Frame(offer_window)
+    button_frame = tk.Frame(root)
     button_frame.grid(row=7, column=0, columnspan=2, pady=20, sticky="ew")
 
     def save():
@@ -198,7 +198,7 @@ def open_offer(offer_id, user_id):
     save_button = tk.Button(button_frame, text="Save", command=save)
     save_button.pack(side="left", padx=10)
 
-    back_button = tk.Button(button_frame, text="Back", command=lambda: (offer_window.destroy(), open_offers_window(user_id)))
+    back_button = tk.Button(button_frame, text="Back", command=lambda: (root.destroy(), open_offers_window(user_id)))
     back_button.pack(side="left", padx=10)
 
     generate_button = tk.Button(button_frame, text="Generate Letter", command=lambda: generate_letter(user_id, offer_id))
@@ -207,4 +207,4 @@ def open_offer(offer_id, user_id):
     view_letter_button = tk.Button(button_frame, text="View Letter", command=lambda: view_letter(user_id, offer_id))
     view_letter_button.pack(side="left", padx=10)
 
-    offer_window.mainloop()
+    root.mainloop()

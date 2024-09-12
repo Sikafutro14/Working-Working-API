@@ -51,33 +51,33 @@ def open_offers_window(user_id):
 
 def open_new_offer(user_id):
     """Opens the window to create a new offer."""
-    new_offer_window = tk.Toplevel()
-    new_offer_window.title("New Offer")
+    root = tk.Tk()
+    root.title("New Offer")
 
     window_width = 1024
     window_height = 768
     
-    center_window(new_offer_window, window_width, window_height)
+    center_window(root, window_width, window_height)
 
     # Input fields for the offer details
-    tk.Label(new_offer_window, text="Position").grid(row=0, column=0, padx=10, pady=10, sticky="w")
-    position_entry = tk.Entry(new_offer_window, width=50)
+    tk.Label(root, text="Position").grid(row=0, column=0, padx=10, pady=10, sticky="w")
+    position_entry = tk.Entry(root, width=50)
     position_entry.grid(row=0, column=1, padx=10, pady=10)
 
-    tk.Label(new_offer_window, text="Company").grid(row=1, column=0, padx=10, pady=10, sticky="w")
-    company_entry = tk.Entry(new_offer_window, width=50)
+    tk.Label(root, text="Company").grid(row=1, column=0, padx=10, pady=10, sticky="w")
+    company_entry = tk.Entry(root, width=50)
     company_entry.grid(row=1, column=1, padx=10, pady=10)
 
-    tk.Label(new_offer_window, text="Offer").grid(row=2, column=0, padx=10, pady=10, sticky="nw")
-    offer_text = tk.Text(new_offer_window, width=50, height=5)
+    tk.Label(root, text="Offer").grid(row=2, column=0, padx=10, pady=10, sticky="nw")
+    offer_text = tk.Text(root, width=50, height=5)
     offer_text.grid(row=2, column=1, padx=10, pady=10)
 
-    tk.Label(new_offer_window, text="About the Company").grid(row=3, column=0, padx=10, pady=10, sticky="nw")
-    about_company_text = tk.Text(new_offer_window, width=50, height=5)
+    tk.Label(root, text="About the Company").grid(row=3, column=0, padx=10, pady=10, sticky="nw")
+    about_company_text = tk.Text(root, width=50, height=5)
     about_company_text.grid(row=3, column=1, padx=10, pady=10)
 
-    tk.Label(new_offer_window, text="URL").grid(row=4, column=0, padx=10, pady=10, sticky="w")
-    url_entry = tk.Entry(new_offer_window, width=50)
+    tk.Label(root, text="URL").grid(row=4, column=0, padx=10, pady=10, sticky="w")
+    url_entry = tk.Entry(root, width=50)
     url_entry.grid(row=4, column=1, padx=10, pady=10)
 
     def save():
@@ -90,11 +90,11 @@ def open_new_offer(user_id):
         save_offer(user_id, position, company, offer, about_company, url)
 
     # Save button
-    save_button = tk.Button(new_offer_window, text="Save", command=save)
+    save_button = tk.Button(root, text="Save", command=save)
     save_button.grid(row=5, column=1, padx=10, pady=10, sticky="e")
 
     # Back button to go back to the offers list
-    back_button = tk.Button(new_offer_window, text="Back", command=lambda: (new_offer_window.destroy(), open_offers_window(user_id)))
+    back_button = tk.Button(root, text="Back", command=lambda: (root.destroy(), open_offers_window(user_id)))
     back_button.grid(row=5, column=0, padx=10, pady=10, sticky="w")
 
-    new_offer_window.mainloop()
+    root.mainloop()
