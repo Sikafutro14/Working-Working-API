@@ -6,9 +6,10 @@ from faker import Faker
 # Initialize Faker for fake data generation
 fake = Faker()
 
-def test():
-    
+# Fake list to store applied companies' details
+applied_companies = []
 
+def test():
     # Function to generate fake companies with job offers
     def generate_fake_companies():
         companies = []
@@ -20,6 +21,14 @@ def test():
         return companies
 
     fake_companies = generate_fake_companies()
+
+    # Fake user data
+    user_info = {
+        "Name": "John Doe",
+        "Date of Birth": "1990-01-01",
+        "Resume": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "Country": "USA"
+    }
 
     # Initialize Main App Window
     app2 = ctk.CTk()
@@ -38,9 +47,8 @@ def test():
     header_frame.pack(fill="x", pady=10)
 
     # Create a content frame for dynamic content
-    content_frame = ctk.CTkFrame(app2, fg_color="#01071a", bg_color=bg_color)
+    content_frame = ctk.CTkFrame(app2, fg_color=bg_color)
     content_frame.pack(fill="both", expand=True, pady=20)
-
 
     # Function to clear the content_frame
     def clear_content_frame():
@@ -50,16 +58,25 @@ def test():
     # Function to display user info
     def show_user_info():
         clear_content_frame()  # Clear previous content
-        # Dummy User Info
-        user_info = {
-            "Username": "john_doe",
-            "Resume": "resume_link.pdf",
-            "CV": "cv_link.pdf"
-        }
-        for i, (key, value) in enumerate(user_info.items()):
-            ctk.CTkLabel(content_frame, text=f"{key}: {value}", fg_color=fg_color).pack(pady=10)
 
-    # Function to create a resume by calling an API
+        # Displaying Personal Info
+        name_label = ctk.CTkLabel(content_frame, text=f"Name: {user_info['Name']}", fg_color=fg_color)
+        name_label.pack(anchor="w", padx=10, pady=5)
+
+        dob_label = ctk.CTkLabel(content_frame, text=f"Date of Birth: {user_info['Date of Birth']}", fg_color=fg_color)
+        dob_label.pack(anchor="w", padx=10, pady=5)
+
+        resume_label = ctk.CTkLabel(content_frame, text=f"Resume: {user_info['Resume']}", fg_color=fg_color)
+        resume_label.pack(anchor="w", padx=10, pady=5)
+
+        country_label = ctk.CTkLabel(content_frame, text=f"Country: {user_info['Country']}", fg_color=fg_color)
+        country_label.pack(anchor="w", padx=10, pady=5)
+
+        # Logout button
+        logout_button = ctk.CTkButton(content_frame, text="Logout", command=app2.quit, fg_color="red")
+        logout_button.pack(anchor="w", padx=10, pady=10)
+
+    # Function to create a resume
     def create_resume():
         clear_content_frame()  # Clear previous content
 
@@ -70,29 +87,31 @@ def test():
         def generate_resume():
             keywords = keywords_entry.get()
             if keywords:
-                # Simulating API Call to Generate Resume with Keywords
-                resume = f"Generated resume with the following keywords: {keywords}"
-                messagebox.showinfo("Resume Generated", resume)
+                # Simulating ChatGPT-generated resume based on keywords
+                resume = f"Generated resume using keywords: {keywords}\nExperience: ...\nSkills: ..."
+                ctk.CTkLabel(content_frame, text=resume, fg_color=fg_color).pack(pady=10)
             else:
                 messagebox.showwarning("Input Required", "Please enter some keywords.")
-        
+
         ctk.CTkButton(content_frame, text="Generate Resume", command=generate_resume, fg_color=fg_color).pack(pady=10)
 
-    # Function to communicate with ChatGPT
+    # Function to ask ChatGPT
     def chat_with_gpt():
         clear_content_frame()  # Clear previous content
 
         ctk.CTkLabel(content_frame, text="Ask ChatGPT anything:", fg_color=fg_color).pack(pady=10)
-
         question_entry = ctk.CTkEntry(content_frame, width=400)
         question_entry.pack(pady=10)
+
+        chat_display = ctk.CTkTextbox(content_frame, width=500, height=200)
+        chat_display.pack(pady=10)
 
         def ask_chatgpt():
             question = question_entry.get()
             if question:
-                # Simulating API call to ChatGPT
-                response = f"ChatGPT response for '{question}'"
-                messagebox.showinfo("ChatGPT Response", response)
+                # Simulating ChatGPT response
+                response = f"ChatGPT: The answer to '{question}' is ..."
+                chat_display.insert(tk.END, f"You: {question}\n{response}\n\n")
             else:
                 messagebox.showwarning("Input Required", "Please enter a question.")
 
@@ -119,46 +138,54 @@ def test():
 
         tree_view.pack()
 
+    # Function to apply for a job
+    def applied_resume():
+        clear_content_frame()  # Clear previous content
+
+        ctk.CTkLabel(content_frame, text="Enter Company Name:", fg_color=fg_color).pack(pady=10)
+        company_entry = ctk.CTkEntry(content_frame)
+        company_entry.pack(pady=10)
+
+        ctk.CTkLabel(content_frame, text="Enter Job URL:", fg_color=fg_color).pack(pady=10)
+        url_entry = ctk.CTkEntry(content_frame)
+        url_entry.pack(pady=10)
+
+        ctk.CTkLabel(content_frame, text="Enter Resume Details:", fg_color=fg_color).pack(pady=10)
+        resume_entry = ctk.CTkEntry(content_frame)
+        resume_entry.pack(pady=10)
+
+        def apply_to_job():
+            company = company_entry.get()
+            url = url_entry.get()
+            resume = resume_entry.get()
+
+            if company and url and resume:
+                applied_companies.append({"Company": company, "URL": url, "Resume": resume})
+                messagebox.showinfo("Success", f"Successfully applied to {company}.")
+            else:
+                messagebox.showwarning("Input Required", "Please fill in all fields.")
+
+        ctk.CTkButton(content_frame, text="Apply", command=apply_to_job, fg_color=fg_color).pack(pady=10)
+
     # Function to update applied companies
     def update_companies():
         clear_content_frame()  # Clear previous content
 
-        ctk.CTkLabel(content_frame, text="Enter company name to update application status:", fg_color=fg_color).pack(pady=10)
-        company_name_entry = ctk.CTkEntry(content_frame)
-        company_name_entry.pack(pady=10)
+        if applied_companies:
+            for company in applied_companies:
+                company_info = f"Company: {company['Company']}, URL: {company['URL']}, Resume: {company['Resume']}"
+                ctk.CTkLabel(content_frame, text=company_info, fg_color=fg_color).pack(pady=10)
+        else:
+            ctk.CTkLabel(content_frame, text="No applied companies yet.", fg_color=fg_color).pack(pady=10)
 
-        def update_status():
-            company_name = company_name_entry.get()
-            if company_name:
-                messagebox.showinfo("Updated", f"Updated application status for {company_name}")
-            else:
-                messagebox.showwarning("Input Required", "Please enter a company name.")
-
-        ctk.CTkButton(content_frame, text="Update", command=update_status, fg_color=self.dark_blue).pack(pady=10)
-
-    # Function to delete old records
-    def delete_records():
-        clear_content_frame()  # Clear previous content
-
-        ctk.CTkLabel(content_frame, text="Enter company name to delete record:", fg_color=fg_color).pack(pady=10)
-        company_name_entry = ctk.CTkEntry(content_frame)
-        company_name_entry.pack(pady=10)
-
-        def delete_record():
-            company_name = company_name_entry.get()
-            if company_name:
-                messagebox.showinfo("Deleted", f"Deleted application for {company_name}")
-            else:
-                messagebox.showwarning("Input Required", "Please enter a company name.")
-
-        ctk.CTkButton(content_frame, text="Delete", command=delete_record, fg_color=fg_color).pack(pady=10)
-
-    # Adding Buttons to Header Frame (Aligned Left to Right)
+    # Add buttons to the header frame
     ctk.CTkButton(header_frame, text="Personal Info", command=show_user_info, fg_color=fg_color).pack(side="left", padx=10)
     ctk.CTkButton(header_frame, text="Create Resume", command=create_resume, fg_color=fg_color).pack(side="left", padx=10)
     ctk.CTkButton(header_frame, text="Ask ChatGPT", command=chat_with_gpt, fg_color=fg_color).pack(side="left", padx=10)
     ctk.CTkButton(header_frame, text="View Job Offers", command=view_job_offers, fg_color=fg_color).pack(side="left", padx=10)
+    ctk.CTkButton(header_frame, text="Applied Resume", command=applied_resume, fg_color=fg_color).pack(side="left", padx=10)
     ctk.CTkButton(header_frame, text="Update Applied Companies", command=update_companies, fg_color=fg_color).pack(side="left", padx=10)
-    ctk.CTkButton(header_frame, text="Delete Records", command=delete_records, fg_color=fg_color).pack(side="left", padx=10)
 
     app2.mainloop()
+
+

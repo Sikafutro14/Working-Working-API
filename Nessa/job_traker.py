@@ -197,12 +197,27 @@ def create_background_image(app, image_path):
 # Use your background image path if required
 create_background_image(app, "/home/dci-students/Desktop/Working-Working-API/Nessa/istockphoto-1270389718-612x612.jpg")
 
-# Main window widgets (Login and Registration)
-ctk.CTkLabel(app, text="Welcome to Application Tracker", text_color="white", font=("Roboto", 20)).place(x=150, y=50)
+
+def center_widget(widget, widget_width, y_position):
+    # Get the width of the window
+    window_width = app.winfo_width()
+    # Calculate x position to center the widget
+    x_position = (window_width - widget_width) // 2
+    widget.place(x=x_position, y=y_position)
 
 
-ctk.CTkButton(app, text="Login", command=login_user, fg_color="#6b5717").place(x=300, y=220)
-ctk.CTkButton(app, text="Register", command=register_user, fg_color="#6b5717").place(x=300, y=270)
+# Main window widgets
+ctk.CTkLabel(app, text="Bravo Application Tracker", text_color="white", font=("Roboto", 20)).place(x=200, y=50)
+
+# Create the buttons without placing them initially
+login_button = ctk.CTkButton(app, text="Login", command=login_user, fg_color="#6b5717")
+register_button = ctk.CTkButton(app, text="Register", command=register_user, fg_color="#6b5717")
+
+# Center the buttons by calling the helper function
+app.update()  # Update the app to get the correct window size
+
+center_widget(login_button, login_button.winfo_reqwidth(), 320)
+center_widget(register_button, register_button.winfo_reqwidth(), 270)
 
 
 create_database_and_tables()  # Ensure tables exist
