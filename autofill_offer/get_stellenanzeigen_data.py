@@ -41,7 +41,7 @@ def get_stellenanzeigen_data(page):
         company_title = page.locator('//*[@id="job-ad-regular-header"]/div/div[1]/div[3]/a').inner_text()
         job_title = page.locator('//*[@id="job-ad-regular-header"]/div/div[1]/h1').inner_text()
         page.wait_for_selector('#wrapper > article > p')
-        company_description = page.locator('').inner_text()
+        company_description = page.locator('#wrapper > article > p').inner_text()
         #offer_description = get_offer_description(page)
         
         print(company_title, job_title, company_description)

@@ -15,4 +15,4 @@ testcase1 = r"https://www.stepstone.de/stellenangebote--Linux-Virtualization-Dev
 testcase2 = r"https://www.stellenanzeigen.de/job/software-entwickler-python-m-w-d-erlangen-12805300/"
 testcase3 = r"https://de.indeed.com/jobs?q=python&l=&from=searchOnHP&vjk=eaebb32418b14216&advn=7842752898364246"
 
-get_offer_information(testcase1)
+get_offer_information(testcase2)
