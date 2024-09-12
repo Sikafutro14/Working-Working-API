@@ -1,133 +1,115 @@
 import psycopg2
-from tkinter import messagebox
-from faker import Faker
-import tkinter as tk
-import random
-import customtkinter as ctk
+from psycopg2 import sql
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
 
 class ApplicationTrackerOffers:
-    def __init__(self, app, scrollable_frame= None):
+    def __init__(self, app):
         self.app = app
-        self.scrollable_frame = scrollable_frame
-        self.db_connection = self.connect_to_database()
-        if self.db_connection:
-            self.db_cursor = self.db_connection.cursor()
+        self.connection = None
+        self.cursor = None
+        self.connect_to_db()
 
-    def connect_to_database(self):
+    def connect_to_db(self):
+        """Establish a connection to the PostgreSQL database."""
         try:
-            conn = psycopg2.connect(
-                dbname="job_app_db",
-                user="postgres",
-                password="password",
-                host="localhost",
-                port="5432"
+            self.connection = psycopg2.connect(
+                host=os.getenv('DB_HOST'),
+                database=os.getenv('DB_NAME'),
+                user=os.getenv('DB_USER'),
+                password=os.getenv('DB_PASS'),
+                port=os.getenv('DB_PORT')
             )
-            return conn
-        except Exception as e:
-            messagebox.showerror("Database Error", f"Failed to connect to the database: {e}")
-            return None
+            self.cursor = self.connection.cursor()
+            print("Database connection established.")
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(f"Error connecting to the database: {error}")
 
     def create_offers_table(self):
-        create_table_query = """
-        CREATE TABLE IF NOT EXISTS offers (
-            id SERIAL PRIMARY KEY,
-            user_id INTEGER,
-            company TEXT,
-            department TEXT,
-            offer_url TEXT,
-            company_description TEXT,
-            offer_text TEXT,
-            status INTEGER,
-            response TEXT,
-            title TEXT
-        )
-        """
-        self.execute_query(create_table_query)
-
-    def execute_query(self, query, params=None):
+        """Create the offers table if it doesn't already exist."""
         try:
-            with self.db_connection.cursor() as cursor:
-                cursor.execute(query, params)
-                self.db_connection.commit()
-        except Exception as e:
-            messagebox.showerror("Database Error", f"Failed to execute query: {e}")
+            create_table_query = '''
+            CREATE TABLE IF NOT EXISTS offers (
+                id SERIAL PRIMARY KEY,
+                title VARCHAR(255) NOT NULL
+            )
+            '''
+            self.cursor.execute(create_table_query)
+            self.connection.commit()
+            print("Offers table created successfully.")
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(f"Error creating table: {error}")
+            self.connection.rollback()
+
+    def create_offer(self, offer_id, company, title):
+        """Insert a new offer into the offers table."""
+        try:
+            insert_query = '''
+            INSERT INTO offers (title) VALUES (%s)
+            RETURNING id
+            '''
+            self.cursor.execute(insert_query, (title,))
+            self.connection.commit()
+            offer_id = self.cursor.fetchone()[0]
+            print(f"Offer '{title}' created with ID {offer_id}.")
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(f"Error inserting offer: {error}")
+            self.connection.rollback()
+
+    def update_offer(self, offer_id, new_title):
+        """Update the title of an offer by its ID."""
+        try:
+            update_query = '''
+            UPDATE offers
+            SET title = %s
+            WHERE id = %s
+            '''
+            self.cursor.execute(update_query, (new_title, offer_id))
+            self.connection.commit()
+            print(f"Offer ID {offer_id} updated to '{new_title}'.")
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(f"Error updating offer: {error}")
+            self.connection.rollback()
+
+    def delete_offer(self, offer_id):
+        """Delete an offer by its ID."""
+        try:
+            delete_query = '''
+            DELETE FROM offers
+            WHERE id = %s
+            '''
+            self.cursor.execute(delete_query, (offer_id,))
+            self.connection.commit()
+            print(f"Offer ID {offer_id} deleted.")
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(f"Error deleting offer: {error}")
+            self.connection.rollback()
 
     def fetch_offers(self):
+        """Retrieve all offers from the offers table."""
         try:
-            self.db_cursor.execute("SELECT * FROM offers")
-            return self.db_cursor.fetchall()
-        except Exception as e:
-            messagebox.showerror("Database Error", f"Failed to fetch offers: {e}")
+            select_query = '''
+            SELECT id, title FROM offers
+            ORDER BY id ASC
+            '''
+            self.cursor.execute(select_query)
+            offers = self.cursor.fetchall()
+            return offers
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(f"Error fetching offers: {error}")
             return []
 
-    def display_offers(self):
-        offers = self.fetch_offers()
+    def __del__(self):
+        """Close the database connection when the object is destroyed."""
+        if self.cursor:
+            self.cursor.close()
+        if self.connection:
+            self.connection.close()
+            print("Database connection closed.")
 
-        # Clear existing data
-        for widget in self.scrollable_frame.winfo_children():
-            widget.destroy()
-
-        # Add headers
-        headers = ["ID", "Company", "Department", "Offer URL", "Company Description", "Offer Text", "Status", "Response", "Title"]
-        for i, header in enumerate(headers):
-            label = ctk.CTkLabel(self.scrollable_frame, text=header, font=("Roboto", 12, "bold"),
-                                width=120, height=30, fg_color=self.app.accent_color, text_color=self.app.white)
-            label.grid(row=0, column=i, sticky="nsew", padx=1, pady=1)
-            self.scrollable_frame.grid_columnconfigure(i, weight=1)
-
-        # Add rows
-        if offers:
-            for i, offer in enumerate(offers):
-                for j, data in enumerate(offer):
-                    # Access data using correct column index
-                    data_to_display = str(data)  # Handle data type conversion if needed
-                    label = ctk.CTkLabel(self.scrollable_frame, text=data_to_display, font=("Roboto", 12),
-                                        width=120, height=30, fg_color=self.app.white, text_color=self.app.dark_blue)
-                    label.grid(row=i+1, column=j, sticky="nsew", padx=1, pady=1)
-                    self.scrollable_frame.grid_columnconfigure(j, weight=1)
-        else:
-            empty_label = ctk.CTkLabel(self.scrollable_frame, text="No offers available", font=("Roboto", 12), text_color=self.app.dark_blue)
-            empty_label.grid(row=1, column=0, columnspan=len(headers), pady=20)
-    def create_offer(self):
-        title = self.app.offer_entry.get().strip()
-        if title:
-            self.execute_query("INSERT INTO offers (offer_text) VALUES (%s)", (title,))
-            self.display_offers()  # Update the GUI
-        else:
-            messagebox.showerror("Input Error", "Offer title cannot be empty.")
-
-    def update_offer(self):
-        offer_id = 1
-        title = self.app.offer_entry.get().strip()
-        if title:
-            self.execute_query("UPDATE offers SET offer_text = %s WHERE id = %s", (title, offer_id))
-            self.display_offers()  # Update the GUI
-        else:
-            messagebox.showerror("Input Error", "Offer title cannot be empty.")
-
-    def delete_offer(self):
-        offer_id = 1
-        self.execute_query("DELETE FROM offers WHERE id = %s", (offer_id,))
-        self.display_offers()  # Update the GUI
-
-    def populate_db_with_fake_data(self):
-        fake = Faker()
-        for _ in range(100):
-            company = fake.company()
-            department = fake.bs()
-            offer_url = fake.url()
-            company_description = fake.text(max_nb_chars=200)
-            offer_text = fake.text(max_nb_chars=500)
-            status = fake.random_int(min=0, max=2)
-            response = bool(random.getrandbits(1))
-            title = fake.job()
-
-            self.execute_query("""
-                INSERT INTO offers (company, department, offer_url, company_description, offer_text, status, response, title)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, (company, department, offer_url, company_description, offer_text, status, response, title))
-            
-        self.db_connection.commit()
 
 
     
