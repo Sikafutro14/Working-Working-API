@@ -57,24 +57,149 @@ def test():
 
     # Function to display user info
     def show_user_info():
-        clear_content_frame()  # Clear previous content
+     clear_content_frame()  # Clear previous content
 
-        # Displaying Personal Info
-        name_label = ctk.CTkLabel(content_frame, text=f"Name: {user_info['Name']}", fg_color=fg_color)
-        name_label.pack(anchor="w", padx=10, pady=5)
+    # Creating the resume form within the content_frame (like in ResumeGUI)
+    tk.Label(content_frame, text="Full Name:").pack(pady=5)
+    full_name_entry = tk.Entry(content_frame)
+    full_name_entry.pack(pady=5)
 
-        dob_label = ctk.CTkLabel(content_frame, text=f"Date of Birth: {user_info['Date of Birth']}", fg_color=fg_color)
-        dob_label.pack(anchor="w", padx=10, pady=5)
+    tk.Label(content_frame, text="Email:").pack(pady=5)
+    email_entry = tk.Entry(content_frame)
+    email_entry.pack(pady=5)
 
-        resume_label = ctk.CTkLabel(content_frame, text=f"Resume: {user_info['Resume']}", fg_color=fg_color)
-        resume_label.pack(anchor="w", padx=10, pady=5)
+    tk.Label(content_frame, text="Phone Number:").pack(pady=5)
+    phone_number_entry = tk.Entry(content_frame)
+    phone_number_entry.pack(pady=5)
 
-        country_label = ctk.CTkLabel(content_frame, text=f"Country: {user_info['Country']}", fg_color=fg_color)
-        country_label.pack(anchor="w", padx=10, pady=5)
+    tk.Label(content_frame, text="Location:").pack(pady=5)
+    location_entry = tk.Entry(content_frame)
+    location_entry.pack(pady=5)
 
-        # Logout button
-        logout_button = ctk.CTkButton(content_frame, text="Logout", command=app2.quit, fg_color="red")
-        logout_button.pack(anchor="w", padx=10, pady=10)
+    tk.Label(content_frame, text="Objective:").pack(pady=5)
+    objective_text = scrolledtext.ScrolledText(content_frame, height=5, width=40)
+    objective_text.pack(pady=5)
+
+    # Work Experience
+    work_experience_frame = tk.LabelFrame(content_frame, text="Work Experience")
+    work_experience_frame.pack(pady=10, padx=10, fill=tk.X)
+
+    work_experience_entries = []
+
+    def add_work_experience():
+        frame = tk.Frame(work_experience_frame)
+        frame.pack(pady=5, fill=tk.X)
+
+        tk.Label(frame, text="Job Title:").pack(side=tk.LEFT, padx=5)
+        title_entry = tk.Entry(frame, width=20)
+        title_entry.pack(side=tk.LEFT, padx=5)
+
+        tk.Label(frame, text="Company:").pack(side=tk.LEFT, padx=5)
+        company_entry = tk.Entry(frame, width=20)
+        company_entry.pack(side=tk.LEFT, padx=5)
+
+        tk.Label(frame, text="Start Date (YYYY-MM-DD):").pack(side=tk.LEFT, padx=5)
+        start_date_entry = tk.Entry(frame, width=10)
+        start_date_entry.pack(side=tk.LEFT, padx=5)
+
+        tk.Label(frame, text="End Date (YYYY-MM-DD):").pack(side=tk.LEFT, padx=5)
+        end_date_entry = tk.Entry(frame, width=10)
+        end_date_entry.pack(side=tk.LEFT, padx=5)
+
+        tk.Label(frame, text="Responsibilities:").pack(side=tk.LEFT, padx=5)
+        responsibilities_entry = tk.Entry(frame, width=40)
+        responsibilities_entry.pack(side=tk.LEFT, padx=5)
+
+        work_experience_entries.append({
+            'title': title_entry,
+            'company': company_entry,
+            'start_date': start_date_entry,
+            'end_date': end_date_entry,
+            'responsibilities': responsibilities_entry
+        })
+
+    tk.Button(work_experience_frame, text="Add Work Experience", command=add_work_experience).pack(pady=5)
+
+    # Skills
+    tk.Label(content_frame, text="Skills (comma separated):").pack(pady=5)
+    skills_entry = tk.Entry(content_frame, width=50)
+    skills_entry.pack(pady=5)
+
+    # Achievements
+    tk.Label(content_frame, text="Achievements (comma separated):").pack(pady=5)
+    achievements_entry = tk.Entry(content_frame, width=50)
+    achievements_entry.pack(pady=5)
+
+    # Volunteer Work
+    tk.Label(content_frame, text="Volunteer Work (comma separated):").pack(pady=5)
+    volunteer_work_entry = tk.Entry(content_frame, width=50)
+    volunteer_work_entry.pack(pady=5)
+
+    # References
+    references_frame = tk.LabelFrame(content_frame, text="References")
+    references_frame.pack(pady=10, padx=10, fill=tk.X)
+
+    references_entries = []
+
+    def add_reference():
+        frame = tk.Frame(references_frame)
+        frame.pack(pady=5, fill=tk.X)
+
+        tk.Label(frame, text="Name:").pack(side=tk.LEFT, padx=5)
+        name_entry = tk.Entry(frame, width=20)
+        name_entry.pack(side=tk.LEFT, padx=5)
+
+        tk.Label(frame, text="Contact:").pack(side=tk.LEFT, padx=5)
+        contact_entry = tk.Entry(frame, width=20)
+        contact_entry.pack(side=tk.LEFT, padx=5)
+
+        tk.Label(frame, text="Relationship:").pack(side=tk.LEFT, padx=5)
+        relationship_entry = tk.Entry(frame, width=20)
+        relationship_entry.pack(side=tk.LEFT, padx=5)
+
+        references_entries.append({
+            'name': name_entry,
+            'contact': contact_entry,
+            'relationship': relationship_entry
+        })
+
+    tk.Button(references_frame, text="Add Reference", command=add_reference).pack(pady=5)
+
+    # Submit button
+    def submit_resume():
+        # Collect and store all the information
+        personal_info = {
+            'full_name': full_name_entry.get(),
+            'email': email_entry.get(),
+            'phone_number': phone_number_entry.get(),
+            'location': location_entry.get(),
+            'objective': objective_text.get("1.0", tk.END).strip(),
+            'skills': skills_entry.get().split(','),
+            'achievements': achievements_entry.get().split(','),
+            'volunteer_work': volunteer_work_entry.get().split(','),
+            'references': []
+        }
+
+        # Process work experience
+        personal_info['work_experience'] = [{
+            'job_title': entry['title'].get(),
+            'company': entry['company'].get(),
+            'start_date': entry['start_date'].get(),
+            'end_date': entry['end_date'].get(),
+            'responsibilities': entry['responsibilities'].get()
+        } for entry in work_experience_entries]
+
+        # Process references
+        personal_info['references'] = [{
+            'name': entry['name'].get(),
+            'contact': entry['contact'].get(),
+            'relationship': entry['relationship'].get()
+        } for entry in references_entries]
+
+        # Here you can implement the database saving logic or further processing
+        messagebox.showinfo("Success", "Resume Submitted")
+
+    tk.Button(content_frame, text="Submit", command=submit_resume).pack(pady=20)
 
     # Function to create a resume
     def create_resume():
@@ -187,5 +312,6 @@ def test():
     ctk.CTkButton(header_frame, text="Update Applied Companies", command=update_companies, fg_color=fg_color).pack(side="left", padx=10)
 
     app2.mainloop()
+
 
 
