@@ -4,13 +4,13 @@ import psycopg2
 import json
 from PIL import Image, ImageTk
 import tkinter as tk
-
+from Job_Traker_HomeP import test
 
 # Database connection setup
 def connect_db():
     try:
         conn = psycopg2.connect(
-            dbname="postgres",
+            dbname="ApplicationTrackerApp",
             user="postgres",  # Replace with your actual PostgreSQL username
             password="password",  # Replace with your actual PostgreSQL password
             host="localhost",
@@ -110,6 +110,7 @@ def register_user():
     city_entry = tk.Entry(registration_window)
     city_entry.grid(row=4, column=1, padx=10, pady=5)
 
+
     tk.Label(registration_window, text="Username", bg="#6b5717", fg="white").grid(row=5, column=0, padx=10, pady=5, sticky="w")
     username_entry = tk.Entry(registration_window)
     username_entry.grid(row=5, column=1, padx=10, pady=5)
@@ -139,6 +140,7 @@ def login_user():
                     messagebox.showinfo("Success", "Login Successful!")
                     login_window.destroy()
                     open_home_page(user)
+                    test()
                 else:
                     messagebox.showerror("Error", "Invalid Username or Password")
             except Exception as e:
@@ -162,20 +164,22 @@ def login_user():
     password_entry.place(x=300, y=180)
 
     ctk.CTkButton(login_window, text="Login", command=authenticate, fg_color="#6b5717").place(x=300, y=220)
+    
 
 # Function to open the home page after login
 def open_home_page(user_data):
-    home_page = ctk.CTkToplevel(app)
-    home_page.title("Home Page - Application Tracker")
-    home_page.geometry("1200x800")
+    #test()
+    #home_page = ctk.CTkToplevel(app)
+    #home_page.title("Home Page - Application Tracker")
+    #home_page.geometry("1200x800")
 
     # Add content to the home page (e.g., header, buttons)
-    ctk.CTkLabel(home_page, text=f"Welcome {user_data[1]}!", text_color="white", font=("Roboto", 24)).pack(pady=20)
+    #ctk.CTkLabel(home_page, text=f"Welcome {user_data[1]}!", text_color="white", font=("Roboto", 24)).pack(pady=20)
     
     # Insert the home page widgets here as per your original design
     # For example:
-    ctk.CTkLabel(home_page, text="This is the Home Page", text_color="white", font=("Roboto", 18)).pack(pady=20)
-
+    #ctk.CTkLabel(home_page, text="This is the Home Page", text_color="white", font=("Roboto", 18)).pack(pady=20)
+  pass
 # Main application window
 app = ctk.CTk()
 app.title("Application Tracker")
@@ -196,8 +200,10 @@ create_background_image(app, "/home/dci-students/Desktop/Working-Working-API/Nes
 # Main window widgets (Login and Registration)
 ctk.CTkLabel(app, text="Welcome to Application Tracker", text_color="white", font=("Roboto", 20)).place(x=150, y=50)
 
-ctk.CTkButton(app, text="Login", command=login_user, fg_color="#6b5717").place(x=220, y=150)
-ctk.CTkButton(app, text="Register", command=register_user, fg_color="#6b5717").place(x=320, y=150)
+
+ctk.CTkButton(app, text="Login", command=login_user, fg_color="#6b5717").place(x=300, y=220)
+ctk.CTkButton(app, text="Register", command=register_user, fg_color="#6b5717").place(x=300, y=270)
+
 
 create_database_and_tables()  # Ensure tables exist
 
