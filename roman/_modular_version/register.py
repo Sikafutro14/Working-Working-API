@@ -1,3 +1,4 @@
+from PIL import Image, ImageTk
 import tkinter as tk
 from tkinter import messagebox
 import psycopg2
@@ -32,6 +33,7 @@ def check_password(stored_password, provided_password):
 def open_login_window():
     """Closes the register window and reopens the login window."""
     import main
+    from PIL import Image, ImageTk
     print("Opening login window")
     main.open_login()
 
