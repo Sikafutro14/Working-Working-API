@@ -114,39 +114,72 @@ def open_offers(user_id):
     # Fetch the offers for the logged-in user
     offers = fetch_offers(user_id)
 
-    # Frame for the offers list
+    # Frame for the offers list and buttons
     offers_frame = tk.Frame(root)
     offers_frame.pack(pady=10)
 
     # Labels for the columns
-    tk.Label(offers_frame, text="Position", width=20, anchor="w").grid(row=0, column=0, padx=10, pady=10)
-    tk.Label(offers_frame, text="Company", width=20, anchor="w").grid(row=0, column=1, padx=10, pady=10)
-    tk.Label(offers_frame, text="Action", width=10).grid(row=0, column=2, padx=10, pady=10)
+    tk.Label(offers_frame, text="Position", width=20, anchor="w", font=("Arial", 10, "bold")).grid(row=0, column=0, padx=10, pady=10, columnspan=2)
+    tk.Label(offers_frame, text="Company", width=20, anchor="w", font=("Arial", 10, "bold")).grid(row=0, column=2, padx=10, pady=10, columnspan=2)
+    tk.Label(offers_frame, text="Action", width=10, font=("Arial", 10, "bold")).grid(row=0, column=4, padx=10, pady=10)
 
-    # Display each offer with a "Select" button
+    # Function to return the color based on offer status
+    def get_status_color(status):
+        """Returns a lighter color based on the offer status."""
+        if status == 3:  # Rejected
+            return 'red'  # Light red
+        elif status == 4:  # Accepted
+            return 'green'  # Light green
+        elif status == 1:  # Open
+            return 'yellow'  # Light yellow
+        elif status == 2:  # Applied
+            return 'lightblue'  # Magenta (instead of dark blue)
+        return 'white'  # Default for "None" or unknown statuses
+
+    # Display each offer with a "Select" button and background colors for status
     for idx, offer in enumerate(offers):
         offer_id, position, company, status, response = offer
-        tk.Label(offers_frame, text=position, width=20, anchor="w").grid(row=idx+1, column=0, padx=10, pady=5)
-        tk.Label(offers_frame, text=company, width=20, anchor="w").grid(row=idx+1, column=1, padx=10, pady=5)
+        status_color = get_status_color(status)  # Get color for the current status
 
-        # Button to select and view offer details
+        # Display position, company, with background color and no color for the button
+        position_label = tk.Label(offers_frame, text=position, width=20, anchor="w", bg=status_color)
+        position_label.grid(row=idx+2, column=0, padx=10, pady=5, columnspan=2)
+
+        company_label = tk.Label(offers_frame, text=company, width=20, anchor="w", bg=status_color)
+        company_label.grid(row=idx+2, column=2, padx=10, pady=5, columnspan=2)
+
         select_button = tk.Button(offers_frame, text="Select", command=lambda offer_id=offer_id: (root.destroy(), open_offer_details(offer_id, user_id)))
-        select_button.grid(row=idx+1, column=2, padx=10, pady=5)
+        select_button.grid(row=idx+2, column=4, padx=10, pady=5)
 
-    # Back button to return to the menu
-    back_button = tk.Button(root, text="Back", command=lambda: (root.destroy(), open_menu(user_id)))
-    back_button.pack(side=tk.LEFT, padx=10, pady=10)
+    # Line under Offers
+    tk.Label(offers_frame, text="-------------------", width=20, anchor="w", font=("Arial", 10, "bold")).grid(row=idx+3, column=0, padx=10, pady=10, columnspan=2)
+    tk.Label(offers_frame, text="-------------------", width=20, anchor="w", font=("Arial", 10, "bold")).grid(row=idx+3, column=2, padx=10, pady=10, columnspan=2)
+    tk.Label(offers_frame, text="-------------------", width=10, font=("Arial", 10, "bold")).grid(row=idx+3, column=4, padx=10, pady=10)
 
-    # New Offer button to open the new offer form
-    new_offer_button = tk.Button(root, text="New Offer", command=lambda: (root.destroy(), open_new_offer(user_id)))
-    new_offer_button.pack(side=tk.LEFT, padx=10, pady=10)
+    # URL input field and button to scrape an offer (placed below the offers list)
+    tk.Label(offers_frame, text="Enter URL to scrape offer:", anchor="w").grid(row=idx+4, column=0, padx=10, pady=5, columnspan=2, sticky="w")
+    url_entry = tk.Entry(offers_frame, width=50)
+    url_entry.grid(row=idx+4, column=2, padx=10, pady=5, columnspan=3)
 
-    # URL input field and button to scrape an offer
-    tk.Label(root, text="Enter URL to scrape offer:", anchor="w").pack(pady=5)
-    url_entry = tk.Entry(root, width=50)
-    url_entry.pack(pady=5)
+    scrape_button = tk.Button(offers_frame, text="Scrape Offer from URL", command=lambda: scrape_offer(user_id, url_entry, root))
+    scrape_button.grid(row=idx+6, column=4, padx=10, pady=5)
 
-    scrape_button = tk.Button(root, text="Scrape Offer from URL", command=lambda: scrape_offer(user_id, url_entry, root))
-    scrape_button.pack(pady=5)
+    # Back button to return to the menu (aligned with New Offer button)
+    back_button = tk.Button(offers_frame, text="Back", command=lambda: (root.destroy(), open_menu(user_id)))
+    back_button.grid(row=idx+6, column=0, padx=10, pady=10, sticky="e")
+
+    # New Offer button to open the new offer form (aligned with Back button)
+    new_offer_button = tk.Button(offers_frame, text="New Offer", command=lambda: (root.destroy(), open_new_offer(user_id)))
+    new_offer_button.grid(row=idx+6, column=2, padx=10, pady=10, sticky="w")
+
+    # Add a color-coded legend below the list
+    legend_frame = tk.Frame(root)
+    legend_frame.pack(pady=10)
+
+    tk.Label(legend_frame, text="Legend:", font=("Arial", 10, "bold")).grid(row=0, column=0, padx=10)
+    tk.Label(legend_frame, text="Rejected", bg="red", width=10).grid(row=0, column=1, padx=10)
+    tk.Label(legend_frame, text="Accepted", bg="green", width=10).grid(row=0, column=2, padx=10)
+    tk.Label(legend_frame, text="Open", bg="yellow", width=10).grid(row=0, column=3, padx=10)
+    tk.Label(legend_frame, text="Applied", bg="lightblue", width=10).grid(row=0, column=4, padx=10)
 
     root.mainloop()
