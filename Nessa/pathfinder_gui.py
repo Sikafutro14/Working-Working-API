@@ -2,17 +2,17 @@ import customtkinter as ctk
 from tkinter import messagebox
 import psycopg2
 import json
-import requests
 from PIL import Image, ImageTk
 import tkinter as tk
+from Job_Traker_HomeP import test
 
 # Database connection setup
 def connect_db():
     try:
         conn = psycopg2.connect(
-            dbname="postgres",
-            user="postgres",
-            password="password",
+            dbname="ApplicationTrackerApp",
+            user="postgres",  # Replace with your actual PostgreSQL username
+            password="password",  # Replace with your actual PostgreSQL password
             host="localhost",
             port="5432"
         )
@@ -26,6 +26,7 @@ def create_database_and_tables():
     conn = connect_db()
     if conn:
         cursor = conn.cursor()
+        # Create the necessary tables for user info and resume data
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
@@ -37,73 +38,25 @@ def create_database_and_tables():
             username VARCHAR(100) UNIQUE,
             password VARCHAR(100)
         );
+        CREATE TABLE IF NOT EXISTS user_resume_info (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id),
+            full_name VARCHAR(100),
+            email VARCHAR(100),
+            phone_number VARCHAR(20),
+            location VARCHAR(100),
+            objective TEXT,
+            work_experience JSONB,
+            education JSONB,
+            skills TEXT,
+            achievements TEXT,
+            volunteer_work TEXT,
+            references JSONB
+        );
         ''')
         conn.commit()
         cursor.close()
         conn.close()
-
-# Function to register user details
-def register_user():
-    def save_details():
-        first_name = first_name_entry.get()
-        last_name = last_name_entry.get()
-        dob = dob_entry.get()
-        country = country_entry.get()
-        city = city_entry.get()
-        username = username_entry.get()
-        password = password_entry.get()
-
-        conn = connect_db()
-        if conn:
-            cur = conn.cursor()
-            try:
-                cur.execute("""
-                    INSERT INTO users (first_name, last_name, dob, country, city, username, password)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """, (first_name, last_name, dob, country, city, username, password))
-                conn.commit()
-                messagebox.showinfo("Success", "Registration Successful!")
-                registration_window.destroy()
-            except Exception as e:
-                conn.rollback()
-                messagebox.showerror("Error", f"Registration failed: {e}")
-            finally:
-                cur.close()
-                conn.close()
-
-    registration_window = tk.Toplevel(app)
-    registration_window.title("Registration Form")
-    registration_window.geometry("400x400")
-
-    tk.Label(registration_window, text="First Name").grid(row=0, column=0, padx=10, pady=5)
-    first_name_entry = tk.Entry(registration_window)
-    first_name_entry.grid(row=0, column=1, padx=10, pady=5)
-
-    tk.Label(registration_window, text="Last Name").grid(row=1, column=0, padx=10, pady=5)
-    last_name_entry = tk.Entry(registration_window)
-    last_name_entry.grid(row=1, column=1, padx=10, pady=5)
-
-    tk.Label(registration_window, text="Date of Birth").grid(row=2, column=0, padx=10, pady=5)
-    dob_entry = tk.Entry(registration_window)
-    dob_entry.grid(row=2, column=1, padx=10, pady=5)
-
-    tk.Label(registration_window, text="Country").grid(row=3, column=0, padx=10, pady=5)
-    country_entry = tk.Entry(registration_window)
-    country_entry.grid(row=3, column=1, padx=10, pady=5)
-
-    tk.Label(registration_window, text="City").grid(row=4, column=0, padx=10, pady=5)
-    city_entry = tk.Entry(registration_window)
-    city_entry.grid(row=4, column=1, padx=10, pady=5)
-
-    tk.Label(registration_window, text="Username").grid(row=5, column=0, padx=10, pady=5)
-    username_entry = tk.Entry(registration_window)
-    username_entry.grid(row=5, column=1, padx=10, pady=5)
-
-    tk.Label(registration_window, text="Password").grid(row=6, column=0, padx=10, pady=5)
-    password_entry = tk.Entry(registration_window, show="*")
-    password_entry.grid(row=6, column=1, padx=10, pady=5)
-
-    tk.Button(registration_window, text="Register", command=save_details).grid(row=7, columnspan=2, pady=10)
 
 # Function to login user
 def login_user():
@@ -115,6 +68,7 @@ def login_user():
         if conn:
             cur = conn.cursor()
             try:
+                # Validate user credentials
                 cur.execute("""
                     SELECT * FROM users WHERE username = %s AND password = %s
                 """, (username, password))
@@ -122,7 +76,8 @@ def login_user():
                 if user:
                     messagebox.showinfo("Success", "Login Successful!")
                     login_window.destroy()
-                    open_user_dashboard(user)
+                    open_home_page(user)
+                    test()
                 else:
                     messagebox.showerror("Error", "Invalid Username or Password")
             except Exception as e:
@@ -131,76 +86,52 @@ def login_user():
                 cur.close()
                 conn.close()
 
-    login_window = tk.Toplevel(app)
-    login_window.title("Login")
-    login_window.geometry("300x200")
+    # Creating the login window
+    login_window = ctk.CTkToplevel(app)
+    login_window.title("Job Tracker Login")
+    login_window.geometry("600x300")
+    login_window.configure(bg="#1d314d")
 
-    tk.Label(login_window, text="Username").pack(pady=10)
-    username_entry = tk.Entry(login_window)
-    username_entry.pack(pady=5)
+    ctk.CTkLabel(login_window, text="Username", text_color="white").place(x=220, y=150)
+    username_entry = ctk.CTkEntry(login_window)
+    username_entry.place(x=300, y=150)
 
-    tk.Label(login_window, text="Password").pack(pady=10)
-    password_entry = tk.Entry(login_window, show="*")
-    password_entry.pack(pady=5)
+    ctk.CTkLabel(login_window, text="Password", text_color="white").place(x=220, y=180)
+    password_entry = ctk.CTkEntry(login_window, show="*")
+    password_entry.place(x=300, y=180)
 
-    tk.Button(login_window, text="Login", command=authenticate).pack(pady=20)
-
-def open_user_dashboard(user_data):
-    dashboard_window = tk.Toplevel(app)
-    dashboard_window.title("User Dashboard")
-    dashboard_window.geometry("600x400")
-
-    tk.Label(dashboard_window, text=f"Welcome, {user_data[1]}").pack(pady=10)
-
-    search_frame = tk.Frame(dashboard_window)
-    search_frame.pack(pady=20)
-
-    tk.Label(search_frame, text="Enter Job URL:").pack(side="left", padx=5)
-
-    search_entry = tk.Entry(search_frame, width=50)
-    search_entry.pack(side="left", padx=5)
-
-    def fetch_job_details():
-        job_url = search_entry.get()
-        try:
-            response = requests.get(job_url)
-            if response.status_code == 200:
-                job_data = response.text
-                messagebox.showinfo("Job Details", job_data)
-            else:
-                messagebox.showerror("Error", "Failed to fetch job details")
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to fetch details: {e}")
-
-    tk.Button(search_frame, text="Search", command=fetch_job_details).pack(side="left", padx=5)
-
-    tk.Button(dashboard_window, text="Log Out", command=dashboard_window.destroy).pack(pady=20)
+    ctk.CTkButton(login_window, text="Login", command=authenticate, fg_color="#6b5717").place(x=300, y=220)
 
 # Main application window
 app = ctk.CTk()
-app.title("Job Tracker")
+app.title("Application Tracker")
 app.geometry("600x400")
 
+# Load and set the background image (optional)
 def create_background_image(app, image_path):
     image = Image.open(image_path)
     bg_image = ImageTk.PhotoImage(image)
+
     bg_label = tk.Label(app, image=bg_image)
     bg_label.place(x=0, y=0, relwidth=1, relheight=1)
     bg_label.image = bg_image  # Keep a reference to avoid garbage collection
 
-# Use your background image path
+# Use your background image path if required
 create_background_image(app, "/home/dci-students/Desktop/Working-Working-API/Nessa/istockphoto-1270389718-612x612.jpg")
 
 # Main window widgets
-tk.Label(app, text="Username").place(x=220, y=150)
-username_entry = tk.Entry(app)
-username_entry.place(x=300, y=150)
+ctk.CTkLabel(app, text="Bravo Application Tracker", text_color="white", font=("Roboto", 20)).place(x=200, y=50)
 
-tk.Label(app, text="Password").place(x=220, y=180)
-password_entry = tk.Entry(app, show="*")
-password_entry.place(x=300, y=180)
+# Create the buttons
+login_button = ctk.CTkButton(app, text="Login", command=login_user, fg_color="#6b5717")
+register_button = ctk.CTkButton(app, text="Register", command=register_user, fg_color="#6b5717")
+add_personal_info_button = ctk.CTkButton(app, text="Add Personal Info", command=add_personal_info, fg_color="#6b5717")
 
-tk.Button(app, text="Login", command=login_user).place(x=300, y=220)
-tk.Button(app, text="Register", command=register_user).place(x=300, y=270)
+# Center the buttons
+app.update()  # Update the app to get the correct window size
+center_widget(login_button, login_button.winfo_reqwidth(), 320)
+center_widget(register_button, register_button.winfo_reqwidth(), 270)
+center_widget(add_personal_info_button, add_personal_info_button.winfo_reqwidth(), 370)
 
+create_database_and_tables()  # Ensure tables exist
 app.mainloop()
