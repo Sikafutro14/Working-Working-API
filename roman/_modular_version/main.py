@@ -96,7 +96,7 @@ def login():
 
             if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password.encode('utf-8')):
                 messagebox.showinfo("Success", "Login successful")
-                root.withdraw()  # Hide login window
+                root.destroy()  # Hide login window
                 from menu import open_menu  # Import here to avoid circular import
                 open_menu(user_id)  # Call the menu module after login
             else:
@@ -112,7 +112,7 @@ def login():
 
 def open_register_window():
     """Opens the registration window."""
-    root.withdraw()  # Hide the login window
+    root.destroy()  # Hide the login window
     from register import open_register  # Import here to avoid circular import
     open_register()
 
