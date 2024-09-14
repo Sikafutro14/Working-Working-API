@@ -34,7 +34,6 @@ def open_login_window():
     """Closes the register window and reopens the login window."""
     import main
     from PIL import Image, ImageTk
-    print("Opening login window")
     main.open_login()
 
 def open_register():
