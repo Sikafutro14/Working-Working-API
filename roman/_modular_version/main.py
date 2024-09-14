@@ -96,7 +96,7 @@ def login():
 
             if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password.encode('utf-8')):
                 messagebox.showinfo("Success", "Login successful")
-                root.withdraw()  # Hide login window
+                root.destroy()  # destroy login window
                 from menu import open_menu  # Import here to avoid circular import
                 open_menu(user_id)  # Call the menu module after login
             else:
@@ -112,7 +112,7 @@ def login():
 
 def open_register_window():
     """Opens the registration window."""
-    root.withdraw()  # Hide the login window
+    root.destroy()  # Hide the login window
     from register import open_register  # Import here to avoid circular import
     open_register()
 
@@ -121,6 +121,9 @@ def on_enter_key(event):
 
 def open_login():
     """Opens the login window."""
+    import os                                   # bugfixing print
+    print(os.path.abspath("roman/_modular_version/images/ak47.png"))
+
     global username_entry, password_entry, root
 
     root = tk.Tk()
@@ -137,7 +140,8 @@ def open_login():
 
     # Load the background image using Pillow
     try:
-        image = Image.open("/home/dci-student/Desktop/aplication_project/Working-Working-API/roman/_modular_version/_images/ak47.jpeg")  # Use absolute path
+        image = Image.open("roman/_modular_version/_images/ak47.png")  # Use absolute path or relative path
+        # image = image.resize((1024, 768), Image.ANTIALIAS)  # Resize the image to fit the window
         background_image = ImageTk.PhotoImage(image)
         canvas.create_image(0, 0, anchor="nw", image=background_image)
     except Exception as e:
@@ -148,7 +152,7 @@ def open_login():
     canvas.create_text(window_width - 570, window_height - 650, text="Application Kannon 47", font=("Arial", 20, "bold"), fill="white")
 
     # Frame for login elements
-    login_frame = tk.Frame(root) #bg="Skyblue")  # Use a light color to mimic transparency
+    login_frame = tk.Frame(root)
     login_frame.place(x=10, y=10)  # Position in the upper left
 
     tk.Label(login_frame, text="Username").grid(row=0, column=0, padx=10, pady=10)
