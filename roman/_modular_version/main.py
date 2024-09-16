@@ -137,7 +137,7 @@ def open_login():
 
     # Load the background image using Pillow
     try:
-        image = Image.open("roman/_modular_version/_images/ak47.jpeg")  # Use absolute path
+        image = Image.open("roman/_modular_version/_images/ak47.png")  # Use absolute path
         background_image = ImageTk.PhotoImage(image)
         canvas.create_image(0, 0, anchor="nw", image=background_image)
     except Exception as e:
@@ -164,6 +164,9 @@ def open_login():
 
     register_button = tk.Button(login_frame, text="Register", command=open_register_window)
     register_button.grid(row=3, column=1, padx=10, pady=10)
+
+    quit_button = tk.Button(login_frame, text="Quit", command=quit)
+    quit_button.grid(row=4, column=1, padx=10, pady=10)
 
     root.bind('<Return>', on_enter_key)
 

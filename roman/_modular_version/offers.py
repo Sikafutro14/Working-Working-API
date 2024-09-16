@@ -152,6 +152,9 @@ def open_offers(user_id):
         select_button.grid(row=idx+2, column=4, padx=10, pady=5)
 
     # Line under Offers
+
+    idx = 0
+
     tk.Label(offers_frame, text="-------------------", width=20, anchor="w", font=("Arial", 10, "bold")).grid(row=idx+3, column=0, padx=10, pady=10, columnspan=2)
     tk.Label(offers_frame, text="-------------------", width=20, anchor="w", font=("Arial", 10, "bold")).grid(row=idx+3, column=2, padx=10, pady=10, columnspan=2)
     tk.Label(offers_frame, text="-------------------", width=10, font=("Arial", 10, "bold")).grid(row=idx+3, column=4, padx=10, pady=10)
