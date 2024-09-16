@@ -102,6 +102,9 @@ def scrape_offer(user_id, url_entry, root):
         messagebox.showerror("Error", f"An error occurred: {e}")
 
 def open_offers(user_id):
+
+    idx = 0
+    
     """Opens the window displaying the user's offers."""
     root = tk.Tk()
     root.title("Your Offers")
@@ -153,7 +156,7 @@ def open_offers(user_id):
 
     # Line under Offers
 
-    idx = 0
+    # idx = 0
 
     tk.Label(offers_frame, text="-------------------", width=20, anchor="w", font=("Arial", 10, "bold")).grid(row=idx+3, column=0, padx=10, pady=10, columnspan=2)
     tk.Label(offers_frame, text="-------------------", width=20, anchor="w", font=("Arial", 10, "bold")).grid(row=idx+3, column=2, padx=10, pady=10, columnspan=2)
