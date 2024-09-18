@@ -41,6 +41,11 @@ def help_chatgpt(user_id):
         from menu import open_menu
         open_menu(user_id)
 
+    def open_chat_log():
+        # help_chat.destroy()  # Close the current window
+        from roman._modular_version.chat_log import open_log
+        open_log(user_id)  # Pass the user_id to the chat_log module
+
     api_key = os.getenv('OPENAI_API_KEY')
     messages = [{"role": "system", "content": "You are here to help the user find a job"}]
 
@@ -64,10 +69,10 @@ def help_chatgpt(user_id):
 
     def insert_into_db(user_input, response):
         try:
-            # Insert user input and assistant response into the database
+            # Insert user input, assistant response, and user_id into the database
             cursor.execute(
-                "INSERT INTO chat_log (user_input, assistant_response) VALUES (%s, %s)",
-                (user_input, response)
+                "INSERT INTO chat_log (user_input, assistant_response, user_id) VALUES (%s, %s, %s)",
+                (user_input, response, user_id)
             )
             conn.commit()
         except Exception as e:
@@ -86,7 +91,7 @@ def help_chatgpt(user_id):
             chat_log.insert(tk.END, f"CHAT GPT: {response}\n\n")
             chat_log.config(state=tk.DISABLED)
 
-            # Save the conversation into the database
+            # Save the conversation into the database with the user_id
             insert_into_db(user_input, response)
 
             messages.append({"role": "assistant", "content": response})
@@ -98,6 +103,10 @@ def help_chatgpt(user_id):
 
     back_button = tk.Button(help_chat, text="Back", command=on_back, font=("Arial", 12))
     back_button.pack(pady=5)
+
+    # New "Read Log" button to open the chat_log module
+    read_log_button = tk.Button(help_chat, text="Read Log", command=open_chat_log, font=("Arial", 12))
+    read_log_button.pack(pady=5)
 
     help_chat.mainloop()
 

@@ -73,7 +73,8 @@ def create_db_and_tables():
                 id SERIAL PRIMARY KEY,
                 user_input TEXT,
                 assistant_response TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                user_id INT REFERENCES users(id)
             );
 
         """)
