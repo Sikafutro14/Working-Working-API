@@ -30,8 +30,30 @@ def get_offer_description(page):
         print(f"Error fetching offer description: {e}")
     
     return offer_description"""
-    
 
+def get_iframe_url(page):
+    try:
+        frames = page.frames
+
+        if len(frames) > 1:
+            first_iframe = frames[1]
+            iframe_url = first_iframe.url
+            print(f"First iframe URL: {iframe_url}")
+            return iframe_url
+        else:
+            print("No iframes found on the page.")
+            return None
+    
+    except Exception as e:
+        print(f"Error fetching iframe URL: {e}")
+    """try:
+    
+        frames = page.frames()
+        iframe_url = frames[1].url()
+        print(f"Iframe URL: {iframe_url}")
+    except Exception as e:
+        print(f"Error fetching offer informations: {e}")
+"""
 def get_stellenanzeigen_data(page):
     print(f"Import of {__name__} successful")
     #Get the Offer data
@@ -40,11 +62,12 @@ def get_stellenanzeigen_data(page):
     try:
         company_title = page.locator('//*[@id="job-ad-regular-header"]/div/div[1]/div[3]/a').inner_text()
         job_title = page.locator('//*[@id="job-ad-regular-header"]/div/div[1]/h1').inner_text()
-        page.wait_for_selector('#wrapper > article > p')
-        company_description = page.locator('#wrapper > article > p').inner_text()
-        #offer_description = get_offer_description(page)
         
-        print(company_title, job_title, company_description)
+    
+        iframe = get_iframe_url(page)
+
+
+        #print(company_title, job_title, company_description)
         #return [company_title, job_title, company_description, offer_description]
 
     except Exception as e:
