@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import psycopg2
 
-DB_NAME = "job_app_db"
+DB_NAME = "ak47"
 DB_USER = "postgres"
 DB_PASSWORD = "password"
 DB_HOST = "localhost"

@@ -5,7 +5,7 @@ from ai_module.letter_generator import generate_application_letter
 import letter 
 
 # Database connection parameters
-DB_NAME = "job_app_db"
+DB_NAME = "ak47"
 DB_USER = "postgres"
 DB_PASSWORD = "password"
 DB_HOST = "localhost"
