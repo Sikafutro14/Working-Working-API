@@ -66,22 +66,22 @@ def login(username, password):
         return f"Database connection error: {str(e)}", None
     except Exception as e:
         return str(e), None
+
+def authenticate_user(email, password):
+    """Authenticate a user and return their user ID."""
+    conn = psycopg2.connect(database="your_db", user="your_user", password="your_pass", host="your_host", port="your_port")
+    cur = conn.cursor()
+    
+    query = "SELECT id FROM users WHERE email = %s AND password = %s"
+    cur.execute(query, (email, password))
+    result = cur.fetchone()
+    
+    cur.close()
+    conn.close()
+
+    if result:
+        return result[0]  # Return user ID
+    else:
+        return None
     
 
-def login_user(self):
-    username = self.username_entry.get()
-    password = self.password_entry.get()
-
-    if not username or not password:
-        self.show_error_message("Please enter both username and password.")
-        return
-
-    # Call the login function from sunny_user_auth.py
-    message, user_id = login(username, password)
-
-    if user_id:
-        self.show_info_message(f"Login successful! User ID: {user_id}")
-        self.user_id_entry.delete(0, "end")
-        self.user_id_entry.insert(0, user_id)  # Auto-populate the user ID after login
-    else:
-        self.show_error_message(message)

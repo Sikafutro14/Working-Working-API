@@ -1,4 +1,3 @@
-from PIL import Image, ImageTk
 import tkinter as tk
 from tkinter import messagebox
 import psycopg2
@@ -96,7 +95,7 @@ def login():
 
             if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password.encode('utf-8')):
                 messagebox.showinfo("Success", "Login successful")
-                root.destroy()  # Hide login window
+                root.withdraw()  # Hide login window
                 from menu import open_menu  # Import here to avoid circular import
                 open_menu(user_id)  # Call the menu module after login
             else:
@@ -112,7 +111,7 @@ def login():
 
 def open_register_window():
     """Opens the registration window."""
-    root.destroy()  # Hide the login window
+    root.withdraw()  # Hide the login window
     from register import open_register  # Import here to avoid circular import
     open_register()
 
@@ -131,42 +130,19 @@ def open_login():
 
     center_window(root, window_width, window_height)
 
-    # Create a Canvas to place the background image and titles
-    canvas = tk.Canvas(root, width=window_width, height=window_height)
-    canvas.pack(fill="both", expand=True)
-
-    # Load the background image using Pillow
-    try:
-        image = Image.open("roman/_modular_version/_images/ak47.png")  # Use absolute path
-        background_image = ImageTk.PhotoImage(image)
-        canvas.create_image(0, 0, anchor="nw", image=background_image)
-    except Exception as e:
-        print(f"Error loading image: {e}")
-
-    # Add the title and subtitle below the login box
-    canvas.create_text(window_width - 620, window_height - 700, text="AK47", font=("Arial", 40, "bold"), fill="white")
-    canvas.create_text(window_width - 570, window_height - 650, text="Application Kannon 47", font=("Arial", 20, "bold"), fill="white")
-
-    # Frame for login elements
-    login_frame = tk.Frame(root) #bg="Skyblue")  # Use a light color to mimic transparency
-    login_frame.place(x=10, y=10)  # Position in the upper left
-
-    tk.Label(login_frame, text="Username").grid(row=0, column=0, padx=10, pady=10)
-    username_entry = tk.Entry(login_frame)
+    tk.Label(root, text="Username").grid(row=0, column=0, padx=10, pady=10)
+    username_entry = tk.Entry(root)
     username_entry.grid(row=0, column=1, padx=10, pady=10)
 
-    tk.Label(login_frame, text="Password").grid(row=1, column=0, padx=10, pady=10)
-    password_entry = tk.Entry(login_frame, show='*')
+    tk.Label(root, text="Password").grid(row=1, column=0, padx=10, pady=10)
+    password_entry = tk.Entry(root, show='*')
     password_entry.grid(row=1, column=1, padx=10, pady=10)
 
-    login_button = tk.Button(login_frame, text="Login", command=login)
+    login_button = tk.Button(root, text="Login", command=login)
     login_button.grid(row=2, column=1, padx=10, pady=10)
 
-    register_button = tk.Button(login_frame, text="Register", command=open_register_window)
+    register_button = tk.Button(root, text="Register", command=open_register_window)
     register_button.grid(row=3, column=1, padx=10, pady=10)
-
-    quit_button = tk.Button(login_frame, text="Quit", command=quit)
-    quit_button.grid(row=4, column=1, padx=10, pady=10)
 
     root.bind('<Return>', on_enter_key)
 

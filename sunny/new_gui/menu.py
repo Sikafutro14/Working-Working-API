@@ -26,6 +26,7 @@ def logout():
     """Handles user logout."""
     root.destroy()
     from main import open_login
+    root.destroy()
     open_login()
 
 def quit_app():
