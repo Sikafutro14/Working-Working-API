@@ -3,6 +3,12 @@ import tkinter as tk
 from tkinter import messagebox
 import psycopg2
 import bcrypt
+import sys
+import os
+
+# Add the parent directory of the 'roman' folder to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 
 DB_NAME = "ak47"
 DB_USER = "postgres"

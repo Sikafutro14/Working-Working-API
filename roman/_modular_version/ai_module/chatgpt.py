@@ -43,7 +43,7 @@ def help_chatgpt(user_id):
 
     def open_chat_log():
         # help_chat.destroy()  # Close the current window
-        from roman._modular_version.chat_log import open_log
+        from chat_log import open_log
         open_log(user_id)  # Pass the user_id to the chat_log module
 
     api_key = os.getenv('OPENAI_API_KEY')
