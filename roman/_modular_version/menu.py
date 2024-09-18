@@ -22,6 +22,12 @@ def open_offers(user_id):
     from offers import open_offers
     open_offers(user_id)
 
+def chat_gpt(user_id):
+    """Opens the Chat."""
+    root.destroy()
+    from ai_module.chatgpt import help_chatgpt
+    help_chatgpt(user_id)
+
 def logout():
     """Handles user logout."""
     root.destroy()
@@ -45,6 +51,7 @@ def open_menu(user_id):
 
     tk.Button(root, text="Personal Data", command=lambda: open_personal_data(user_id)).pack(pady=10)
     tk.Button(root, text="Offers", command=lambda: open_offers(user_id)).pack(pady=10)
+    tk.Button(root, text="AI Assistant", command=lambda: chat_gpt(user_id)).pack(pady=10)
     tk.Button(root, text="Logout", command=logout).pack(pady=10)
     tk.Button(root, text="Quit", command=quit_app).pack(pady=10)
 

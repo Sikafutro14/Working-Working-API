@@ -68,6 +68,16 @@ def create_db_and_tables():
             );
         """)
 
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS chat_log (
+                id SERIAL PRIMARY KEY,
+                user_input TEXT,
+                assistant_response TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+
+        """)
+
         conn.commit()
         cur.close()
         conn.close()

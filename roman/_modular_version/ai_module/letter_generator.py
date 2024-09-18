@@ -17,7 +17,7 @@ def generate_application_letter(name, p_info, position, comp_name, comp_desc, of
         api_key = os.getenv('OPENAI_API_KEY')
 
         response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=messages,
             temperature=1.0,
             max_tokens=1000,
