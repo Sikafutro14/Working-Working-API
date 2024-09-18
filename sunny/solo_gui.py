@@ -3,10 +3,6 @@ import tkinter as tk
 from tkinter import ttk, Menu
 from CTkToolTip import CTkToolTip
 import openai
-from sunny_gpt import *
-from sunny_offers import *
-from sunny_resume_gen import *
-from sunny_user_auth import *
 import os
 from dotenv import load_dotenv
 
