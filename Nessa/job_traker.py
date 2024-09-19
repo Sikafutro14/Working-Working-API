@@ -21,7 +21,6 @@ def connect_db():
         messagebox.showerror("Database Error", f"Failed to connect to the database: {e}")
         return None
 
-
 # Function to create the database and tables if they don't exist
 def create_database_and_tables():
     conn = connect_db()
@@ -38,9 +37,7 @@ def create_database_and_tables():
             username VARCHAR(100) UNIQUE,
             password VARCHAR(100)
         );
-          
         ''')
-       
         conn.commit()
         cursor.close()
         conn.close()
@@ -89,7 +86,7 @@ def register_user():
     registration_window = ctk.CTkToplevel(app)
     registration_window.title("Registration Form")
     registration_window.geometry("400x400")
-    registration_window.configure(bg="#1d314d")
+    registration_window.configure(bg="#081533")
 
     # Registration Form Widgets
     tk.Label(registration_window, text="First Name", bg="#6b5717", fg="white").grid(row=0, column=0, padx=10, pady=5, sticky="w")
@@ -111,7 +108,6 @@ def register_user():
     tk.Label(registration_window, text="City", bg="#6b5717", fg="white").grid(row=4, column=0, padx=10, pady=5, sticky="w")
     city_entry = tk.Entry(registration_window)
     city_entry.grid(row=4, column=1, padx=10, pady=5)
-
 
     tk.Label(registration_window, text="Username", bg="#6b5717", fg="white").grid(row=5, column=0, padx=10, pady=5, sticky="w")
     username_entry = tk.Entry(registration_window)
@@ -155,7 +151,7 @@ def login_user():
     login_window = ctk.CTkToplevel(app)
     login_window.title("Job Tracker Login")
     login_window.geometry("600x300")
-    login_window.configure(bg="#1d314d")
+    login_window.configure(bg="#081533")
 
     ctk.CTkLabel(login_window, text="Username", text_color="white").place(x=220, y=150)
     username_entry = ctk.CTkEntry(login_window)
@@ -166,28 +162,19 @@ def login_user():
     password_entry.place(x=300, y=180)
 
     ctk.CTkButton(login_window, text="Login", command=authenticate, fg_color="#6b5717").place(x=300, y=220)
-    
 
 # Function to open the home page after login
 def open_home_page(user_data):
-    #test()
-    #home_page = ctk.CTkToplevel(app)
-    #home_page.title("Home Page - Application Tracker")
-    #home_page.geometry("1200x800")
+    # Home page code can be placed here
+    pass
 
-    # Add content to the home page (e.g., header, buttons)
-    #ctk.CTkLabel(home_page, text=f"Welcome {user_data[1]}!", text_color="white", font=("Roboto", 24)).pack(pady=20)
-    
-    # Insert the home page widgets here as per your original design
-    # For example:
-    #ctk.CTkLabel(home_page, text="This is the Home Page", text_color="white", font=("Roboto", 18)).pack(pady=20)
-  pass
+
 # Main application window
 app = ctk.CTk()
-app.title("Application Tracker")
+app.title("Job Tracker")
 app.geometry("600x400")
 
-# Load and set the background image (optional)
+# Load and set the background image
 def create_background_image(app, image_path):
     image = Image.open(image_path)
     bg_image = ImageTk.PhotoImage(image)
@@ -196,34 +183,20 @@ def create_background_image(app, image_path):
     bg_label.place(x=0, y=0, relwidth=1, relheight=1)
     bg_label.image = bg_image  # Keep a reference to avoid garbage collection
 
-# Use your background image path if required
+# Use your background image path
 create_background_image(app, "/home/dci-students/Desktop/Working-Working-API/Nessa/istockphoto-1270389718-612x612.jpg")
 
-
-def center_widget(widget, widget_width, y_position):
-    # Get the width of the window
-    window_width = app.winfo_width()
-    # Calculate x position to center the widget
-    x_position = (window_width - widget_width) // 2
-    widget.place(x=x_position, y=y_position)
-
-
 # Main window widgets
-ctk.CTkLabel(app, text="Bravo Application Tracker", text_color="white", font=("Roboto", 20)).place(x=200, y=50)
+ctk.CTkLabel(app, text="Bravo Application Tracker", text_color="white", font=("Roboto", 20)).pack(pady=50)
 
 # Create the buttons without placing them initially
 login_button = ctk.CTkButton(app, text="Login", command=login_user, fg_color="#6b5717")
 register_button = ctk.CTkButton(app, text="Register", command=register_user, fg_color="#6b5717")
 
-# Center the buttons by calling the helper function
-app.update()  # Update the app to get the correct window size
-
-center_widget(login_button, login_button.winfo_reqwidth(), 320)
-center_widget(register_button, register_button.winfo_reqwidth(), 270)
-
+# Pack buttons to be displayed properly
+register_button.pack(pady=10)
+login_button.pack(pady=10)
 
 create_database_and_tables()  # Ensure tables exist
 
 app.mainloop()
-
-

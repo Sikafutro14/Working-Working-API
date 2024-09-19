@@ -3,7 +3,7 @@ from tkinter import messagebox, filedialog, Menu
 import psycopg2
 import json
 import os
-from openai import OpenAI
+#from openai import OpenAI
 from faker import Faker
 import requests
 from PIL import Image, ImageTk

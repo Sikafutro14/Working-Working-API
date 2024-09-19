@@ -357,3 +357,4 @@ if __name__ == "__main__":
     app = ResumeApp()
     app.gpt_app.initialize_openai_client()  # Initialize OpenAI client
     app.mainloop()
+

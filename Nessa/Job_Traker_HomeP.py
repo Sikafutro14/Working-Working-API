@@ -2,10 +2,13 @@ import customtkinter as ctk
 import tkinter as tk
 from tkinter import messagebox, ttk
 from faker import Faker
+import openai
 
 # Initialize Faker for fake data generation
 fake = Faker()
+openai.api_key = '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<<<<<'
 
+ 
 # Fake list to store applied companies' details
 applied_companies = []
 
@@ -107,7 +110,9 @@ def test():
 
         ctk.CTkButton(content_frame, text="Generate Resume", command=generate_resume, fg_color=fg_color).pack(pady=10)
 
-    # Function to ask ChatGPT
+                   
+
+    # Function to ask ChatGPT using OpenAI API
     def chat_with_gpt():
         clear_content_frame()  # Clear previous content
 
@@ -118,14 +123,18 @@ def test():
         chat_display = ctk.CTkTextbox(content_frame, width=500, height=200)
         chat_display.pack(pady=10)
 
-        def ask_chatgpt():
-            question = question_entry.get()
-            if question:
-                # Simulating ChatGPT response
-                response = f"ChatGPT: The answer to '{question}' is ..."
-                chat_display.insert(tk.END, f"You: {question}\n{response}\n\n")
-            else:
-                messagebox.showwarning("Input Required", "Please enter a question.")
+        
+def ask_chatgpt(question):
+    try:
+        # Use the new chat API method
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",  # Use the latest supported model
+            messages=[{"role": "user", "content": question}]
+        )
+        answer = response['choices'][0]['message']['content']
+        return answer
+    except Exception as e:
+        return f"Error: {e}"
 
         ctk.CTkButton(content_frame, text="Ask", command=ask_chatgpt, fg_color=fg_color).pack(pady=10)
 
@@ -201,4 +210,5 @@ def test():
 
     app2.mainloop()
 
-#test()
+# Call the test function to run the app
+test()
