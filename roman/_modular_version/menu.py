@@ -74,7 +74,7 @@ def load_user_dashboard(user_id):
 
         if user_stats:
             total_offers, responded_offers, total_applications = user_stats
-            stats_text.set(f"Total Offers: {total_offers}\nResponded Offers: {responded_offers}\nTotal Applications: {total_applications}")
+            stats_text.set(f"Total Offers: {total_offers}\nResponded: {responded_offers}\nTotal Applications: {total_applications}")
         else:
             stats_text.set("No data available")
 

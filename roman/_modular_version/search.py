@@ -10,6 +10,12 @@ DB_HOST = "localhost"
 # Status options for mapping integers to text
 status_options = {0: "None", 1: "Open", 2: "Applied", 3: "Rejected", 4: "Accepted"}
 
+# Global variables
+user_id = None
+position_var = None
+company_var = None
+status_var = None
+
 def center_window(window, width, height):
     """Centers the window on the screen."""
     screen_width = window.winfo_screenwidth()
@@ -19,6 +25,34 @@ def center_window(window, width, height):
     y = (screen_height // 2) - (height // 2)
 
     window.geometry(f'{width}x{height}+{x}+{y}')
+
+def create_view():
+    """Creates the view for offers if it does not exist."""
+    try:
+        conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST)
+        cur = conn.cursor()
+        
+        cur.execute("""
+            CREATE OR REPLACE VIEW offer_details_view AS
+            SELECT 
+                o.id,
+                o.position,
+                o.company,
+                o.offer,
+                o.status,
+                u.username AS user_name
+            FROM 
+                offers o
+            JOIN 
+                users u ON o.user_id = u.id;
+        """)
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+
+    except Exception as e:
+        print(f"Error creating view: {e}")
 
 def fetch_filter_options():
     """Fetches distinct filter options (positions, companies) from the database."""
@@ -48,7 +82,8 @@ def search_offers(filters):
         conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST)
         cur = conn.cursor()
 
-        query = "SELECT position, company, offer, status FROM offers WHERE 1=1"
+        # Query the view 'offer_details_view'
+        query = "SELECT id, position, company, offer, status FROM offer_details_view WHERE 1=1"
         params = []
 
         # Apply filters only if they're not "Any"
@@ -91,13 +126,16 @@ def perform_search():
     if results:
         # Import and open the search results window
         from search_results import open_search_results
-        open_search_results(results)
+        open_search_results(results, user_id)  # Pass user_id to the results function
     else:
         messagebox.showinfo("No Results", "No matching offers found.")
 
-def open_search(user_id):
+def open_search(uid):
     """Opens the Search window."""
-    global position_var, company_var, status_var
+    global user_id, position_var, company_var, status_var
+
+    user_id = uid  # Assign the passed user_id to the global variable
+    create_view()  # Create the view if it doesn't exist
 
     root = tk.Tk()
     root.title("Search Offers")
