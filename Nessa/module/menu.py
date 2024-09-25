@@ -70,29 +70,38 @@ def load_user_dashboard(user_id):
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred: {e}")
 
-# Function to open personal data (just a placeholder)
 def open_personal_data(user_id):
-    messagebox.showinfo("Personal Data", "Opening Personal Data...")
-
-# Function to open offers (just a placeholder)
-def open_offers(user_id):
-    messagebox.showinfo("Offers", "Opening Offers...")
-
-# Function to open AI Assistant (just a placeholder)
-def chat_gpt(user_id):
-    messagebox.showinfo("AI Assistant", "Opening AI Assistant...")
-
-# Function to open search (just a placeholder)
-def open_search(user_id):
-    messagebox.showinfo("Search", "Opening Search...")
-
-# Function to logout (just a placeholder)
-def logout():
-    messagebox.showinfo("Logout", "Logging out...")
+    """Opens the Personal Data window."""
     root.destroy()
+    from p_data import open_p_data
+    open_p_data(user_id)
 
-# Function to quit the application
+def open_offers(user_id):
+    """Opens the Offers window."""
+    root.destroy()
+    from offers import open_offers
+    open_offers(user_id)
+
+def chat_gpt(user_id):
+    """Opens the Chat."""
+    root.destroy()
+    from ai_module.chatgpt import help_chatgpt
+    help_chatgpt(user_id)
+
+def open_search(user_id):
+    """Opens the Search window."""
+    root.destroy()
+    from search import open_search
+    open_search(user_id)
+
+def logout():
+    """Handles user logout."""
+    root.destroy()
+    from main import open_login
+    open_login()
+
 def quit_app():
+    """Quits the application."""
     root.destroy()
 
 # Function to add a new offer (just a placeholder)
