@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 import psycopg2
 import os
-from openai import OpenAI
+#from openai import OpenAI
 
 # Main application class
 class ApplicationTrackerApp(ctk.CTk):

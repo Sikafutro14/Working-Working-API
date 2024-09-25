@@ -1,0 +1,32 @@
+# button_functions.py
+
+from tkinter import messagebox
+
+def open_personal_data(user_id):
+    """Function to handle opening personal data."""
+    messagebox.showinfo("Personal Data", f"Opening Personal Data for user {user_id}...")
+
+def open_offers(user_id):
+    """Function to handle opening offers."""
+    messagebox.showinfo("Offers", f"Opening Offers for user {user_id}...")
+
+def chat_gpt(user_id):
+    """Function to open AI Assistant."""
+    messagebox.showinfo("AI Assistant", f"Opening AI Assistant for user {user_id}...")
+
+def open_search(user_id):
+    """Function to handle opening search."""
+    messagebox.showinfo("Search", f"Opening Search for user {user_id}...")
+
+def logout(root):
+    """Function to handle logout."""
+    messagebox.showinfo("Logout", "Logging out...")
+    root.destroy()
+
+def quit_app(root):
+    """Function to quit the application."""
+    root.destroy()
+
+def add_new_offer():
+    """Function to handle adding a new offer."""
+    messagebox.showinfo("New Offer", "New offer functionality...")

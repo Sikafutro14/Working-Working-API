@@ -2,7 +2,9 @@ import tkinter as tk
 from tkinter import messagebox, END
 import psycopg2
 import customtkinter as ctk
-
+from new_offer import open_new_offer  # Assuming new_offer.py contains the function
+from p_data import open_p_data       # Import personal data function
+from search_results import open_search_results
 # CustomTkinter settings
 ctk.set_appearance_mode("dark")  # Initial mode is dark
 ctk.set_default_color_theme("Nessa/CTK_THEMES/blue.json")  # Use custom theme
@@ -15,7 +17,6 @@ DB_HOST = "localhost"
 
 # Function to center the window
 def center_window(window, width, height):
-    """Centers the window on the screen."""
     screen_width = window.winfo_screenwidth()
     screen_height = window.winfo_screenheight()
 
@@ -25,7 +26,7 @@ def center_window(window, width, height):
     window.geometry(f'{width}x{height}+{x}+{y}')
 
 # Function to toggle between dark and light mode
-mode = "dark"  # Track current mode
+mode = "dark"
 
 def toggle_mode():
     global mode
@@ -38,7 +39,6 @@ def toggle_mode():
 
 # Function to fetch user statistics
 def load_user_dashboard(user_id):
-    """Fetches user statistics and displays them in the dashboard."""
     try:
         conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST)
         cur = conn.cursor()
@@ -142,8 +142,15 @@ def open_menu(user_id):
     ai_assistant_button = ctk.CTkButton(left_frame, text="AI Assistant", command=lambda: chat_gpt(user_id))
     ai_assistant_button.pack(pady=10)
 
+        
+    # Add "Search" button
     search_button = ctk.CTkButton(left_frame, text="Search", command=lambda: open_search(user_id))
     search_button.pack(pady=10)
+
+    # Add "Add New Offer" button
+    add_new_offer_button = ctk.CTkButton(left_frame, text="Add New Offer", command=add_new_offer)
+    add_new_offer_button.pack(pady=10)  # This adds the "Add New Offer" button to the navigation panel
+
 
     logout_button = ctk.CTkButton(left_frame, text="Logout", command=logout)
     logout_button.pack(pady=10)
@@ -161,8 +168,8 @@ def open_menu(user_id):
     ctk.CTkLabel(dashboard_frame, textvariable=stats_text, font=("Arial", 14), justify=tk.LEFT).pack(pady=10)
 
     # New Offer Button
-    new_offer_button = ctk.CTkButton(dashboard_frame, text="Add New Offer", command=add_new_offer)
-    new_offer_button.pack(pady=10)
+    #new_offer_button = ctk.CTkButton(dashboard_frame, text="Add New Offer", command=add_new_offer)
+    #new_offer_button.pack(pady=10)
 
     # Chat Log Text Box
     chat_log_label = ctk.CTkLabel(dashboard_frame, text="Chat Log", font=("Arial", 14))
@@ -173,7 +180,7 @@ def open_menu(user_id):
     chat_log_text.insert("0.0", "Chat logs will be displayed here...")
 
     # Command/Query Entry
-    command_entry_label = ctk.CTkLabel(dashboard_frame, text="Command/Query", font=("Arial", 14))
+    command_entry_label = ctk.CTkLabel(dashboard_frame, text="AskChatgpt", font=("Arial", 14))
     command_entry_label.pack(pady=10)
 
     command_entry = ctk.CTkEntry(dashboard_frame, width=500, placeholder_text="Enter command or query here")

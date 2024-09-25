@@ -95,19 +95,9 @@ def logout():
 def quit_app():
     root.destroy()
 
-# Function to add a new offer (just a placeholder)
-def add_new_offer():
-    messagebox.showinfo("New Offer", "New offer functionality...")
-
-# Function to submit the command/query (just a placeholder)
-def submit_command():
-    command = command_entry.get()
-    messagebox.showinfo("Command Submitted", f"Command/Query: {command}")
-    command_entry.delete(0, END)
-
 # Main function to open the menu
 def open_menu(user_id):
-    global root, stats_text, command_entry
+    global root, stats_text
 
     root = ctk.CTk()  # Use CustomTkinter root
     root.title("User Dashboard")
@@ -159,29 +149,6 @@ def open_menu(user_id):
 
     stats_text = tk.StringVar()
     ctk.CTkLabel(dashboard_frame, textvariable=stats_text, font=("Arial", 14), justify=tk.LEFT).pack(pady=10)
-
-    # New Offer Button
-    new_offer_button = ctk.CTkButton(dashboard_frame, text="Add New Offer", command=add_new_offer)
-    new_offer_button.pack(pady=10)
-
-    # Chat Log Text Box
-    chat_log_label = ctk.CTkLabel(dashboard_frame, text="Chat Log", font=("Arial", 14))
-    chat_log_label.pack(pady=10)
-
-    chat_log_text = ctk.CTkTextbox(dashboard_frame, height=150, width=600)
-    chat_log_text.pack(pady=10)
-    chat_log_text.insert("0.0", "Chat logs will be displayed here...")
-
-    # Command/Query Entry
-    command_entry_label = ctk.CTkLabel(dashboard_frame, text="Command/Query", font=("Arial", 14))
-    command_entry_label.pack(pady=10)
-
-    command_entry = ctk.CTkEntry(dashboard_frame, width=500, placeholder_text="Enter command or query here")
-    command_entry.pack(pady=10)
-
-    # Submit Button for Command/Query
-    submit_button = ctk.CTkButton(dashboard_frame, text="Submit", command=submit_command)
-    submit_button.pack(pady=10)
 
     # Load user stats into the dashboard
     load_user_dashboard(user_id)

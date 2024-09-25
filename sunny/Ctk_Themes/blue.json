@@ -8,14 +8,14 @@
     "CTkFrame": {
       "corner_radius": 6,
       "border_width": 0,
-      "fg_color": ["gray90", "#06215c"],
+      "fg_color": ["gray90", "gray13"],
       "top_fg_color": ["gray85", "gray16"],
       "border_color": ["gray65", "gray28"]
     },
     "CTkButton": {
       "corner_radius": 6,
       "border_width": 0,
-      "fg_color": ["#3a7ebf", "#470d13"],
+      "fg_color": ["#3a7ebf", "red"],
       "hover_color": ["#325882", "#14375e"],
       "border_color": ["#3E454A", "#949A9F"],
       "text_color": ["#DCE4EE", "#DCE4EE"],
@@ -32,7 +32,7 @@
       "fg_color": ["#F9F9FA", "#343638"],
       "border_color": ["#979DA2", "#565B5E"],
       "text_color": ["gray14", "gray84"],
-      "placeholder_text_color": ["#2676c7", "#2676c7"]
+      "placeholder_text_color": ["gray52", "gray62"]
     },
     "CTkCheckBox": {
       "corner_radius": 6,
