@@ -46,7 +46,6 @@ def create_view():
             JOIN 
                 users u ON o.user_id = u.id;
         """)
-        print(cur.execute('''select * from offer_details_view;'''))
         conn.commit()
         cur.close()
         conn.close()

@@ -6,6 +6,7 @@ import bcrypt
 import sys
 import os
 
+
 # Add the parent directory of the 'roman' folder to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -54,11 +55,11 @@ def create_db_and_tables():
         cur.execute("""
             CREATE TABLE IF NOT EXISTS offers (
                 id SERIAL PRIMARY KEY,
-                position VARCHAR(100) NOT NULL,
+                position VARCHAR(300) NOT NULL,
                 company VARCHAR(100) NOT NULL,
                 offer TEXT,
                 about TEXT,
-                url VARCHAR(255),
+                url VARCHAR(455),
                 status INTEGER,
                 response BOOLEAN,
                 user_id INTEGER REFERENCES users(id)
@@ -154,7 +155,7 @@ def open_login():
 
     # Load the background image using Pillow
     try:
-        image = Image.open("roman/_modular_version/_images/ak47.png")  # Use absolute path
+        image = Image.open("roman/_modular_version/_images/ak47.png")  
         background_image = ImageTk.PhotoImage(image)
         canvas.create_image(0, 0, anchor="nw", image=background_image)
     except Exception as e:
