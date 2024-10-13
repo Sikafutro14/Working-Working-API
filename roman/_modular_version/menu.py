@@ -62,10 +62,13 @@ def load_user_dashboard(user_id):
             SELECT 
                 COUNT(o.id) AS total_offers,
                 COUNT(CASE WHEN o.response = TRUE THEN 1 END) AS responded_offers,
-                COUNT(CASE WHEN a.id IS NOT NULL THEN 1 END) AS total_applications
+                COUNT(CASE WHEN o.status IS NOT NULL AND o.status != 0 THEN 1 END) AS total_applications,  -- Count all statuses other than 'None'
+                COUNT(CASE WHEN o.status = 1 THEN 1 END) AS open_applications,  -- Count for open applications
+                COUNT(CASE WHEN o.status = 2 THEN 1 END) AS applied_applications,  -- Count for applied applications
+                COUNT(CASE WHEN o.status = 3 THEN 1 END) AS rejected_applications,  -- Count for rejected applications
+                COUNT(CASE WHEN o.status = 4 THEN 1 END) AS accepted_applications   -- Count for accepted applications
             FROM users u
             LEFT JOIN offers o ON u.id = o.user_id
-            LEFT JOIN applications a ON o.id = a.offer_id
             WHERE u.id = %s
             GROUP BY u.id;
         """, (user_id,))
@@ -73,8 +76,18 @@ def load_user_dashboard(user_id):
         user_stats = cur.fetchone()
 
         if user_stats:
-            total_offers, responded_offers, total_applications = user_stats
-            stats_text.set(f"Total Offers: {total_offers}\nResponded: {responded_offers}\nTotal Applications: {total_applications}")
+            (total_offers, responded_offers, total_applications,
+             open_applications, applied_applications, rejected_applications, accepted_applications) = user_stats
+             
+            # Update stats_text to include all the new information
+            stats_text.set(
+                f"Total Offers: {total_offers}\n"
+                f"Total Applications: {total_applications}\n"
+                f"Responded: {responded_offers}\n"
+                f"Open Applications: {open_applications}\n"
+                f"Rejected Applications: {rejected_applications}\n"
+                f"Accepted Applications: {accepted_applications}"
+            )
         else:
             stats_text.set("No data available")
 
@@ -119,4 +132,3 @@ def open_menu(user_id):
     load_user_dashboard(user_id)
 
     root.mainloop()
-
